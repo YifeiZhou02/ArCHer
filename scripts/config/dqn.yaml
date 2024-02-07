@@ -1,0 +1,45 @@
+# Adversarial Attack Config
+defaults:
+ - _self_
+
+#cache directory of transformer
+cache_dir: '/home/yifei/.cache'
+#token
+huggingface_token: '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'
+
+env_load_path: '../LLM_rep_RL/simple_game/'
+checkpoint_path: '../../noobjective_options_gpt2_model0.pt'
+
+#bc dataset
+bc_data_cutoff: 50
+bc_num_trajectories: 1000
+
+# env
+env_name: textworld
+env_cutoff: 100
+env_offset: 0
+
+#training hyperparameters
+beta: 0.1
+rollout_size: 32
+warmup_size: 32
+batch_size: 8
+iterations: 200
+epochs: 5
+ppo_epochs: 2
+clip_range: 0.1
+warmup_iter: 10
+grad_accum_steps: 4
+actor_update_freq: 1
+do_sample: True
+temperature: 2.0
+critic_lr: 1e-4
+lm_lr: 1e-5
+env_idx: 69 #set to null if don't want to reset to a specific environment
+gamma: 0.9
+tau: 0.1
+
+use_wandb: True
+wandb_key: "bc507b560ebcfd048dff040741fcebae2184bd59"
+project_name: 'llm_rl_textworld_noobjective_env69'
+run_name: 'test-dqn'

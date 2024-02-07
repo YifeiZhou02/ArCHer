@@ -1,0 +1,34 @@
+#cache directory of transformer
+cache_dir: '/nfs/kun2/users/yifei/.cache'
+
+#token
+huggingface_token: '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'
+wandb_key: "bc507b560ebcfd048dff040741fcebae2184bd59"
+
+policy_lm: "gpt2"
+agent_type: "dqn"
+use_baseline: False
+max_new_tokens: 32
+save_freq: 25
+eval_freq: 1
+
+#training hyperparameters
+capacity: 10000 #replay buffer size
+rollout_size: 32 #number of rollout trajectories for each update
+eval_size: 32 #number of trajectories for evaluation
+batch_size: 8
+iterations: 2000 #total number of iterations
+epochs: 5 #number of epochs for the critic each iteration
+actor_epochs: 3 #number of epochs for the actor each iteration
+warmup_iter: 20 #number of iterations without updating the policy
+grad_accum_steps: 32
+do_sample: True
+temperature: 1.0
+critic_lr: 2e-5
+lm_lr: 1e-6
+env_idx: null #set to null if don't want to reset to a specific environment
+gamma: 0.95 #discount factor
+tau: 0.1 #soft update parameter
+max_grad_norm: 1.0
+
+use_wandb: False
