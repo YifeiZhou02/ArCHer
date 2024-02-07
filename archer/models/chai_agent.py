@@ -8,7 +8,7 @@ from peft import get_peft_config, PeftModel, PeftConfig, get_peft_model, LoraCon
 import torch.nn as nn
 import numpy as np
 from transformers import RobertaTokenizer, RobertaModel
-from LLM_rep_RL.models.critic import DoubleCritic
+from archer.models.critic import DoubleCritic
 class CHAIAgent(torch.nn.Module):
     def __init__(self, device, accelerator, policy_lm = "gpt2", cache_dir = '~/.cache', dropout = 0.5,\
                   do_sample = True, temperature = 1.0):

@@ -1,5 +1,5 @@
-from LLM_rep_RL.data import DummyDataset
-from LLM_rep_RL.algorithms.bc import plain_bc_loss
+from archer.data import DummyDataset
+from archer.algorithms.bc import plain_bc_loss
 import numpy as np
 from torch.utils.data import Dataset, DataLoader
 from tqdm import tqdm

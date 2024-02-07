@@ -1,6 +1,6 @@
-from LLM_rep_RL.environment import plain_interact_environment, \
+from archer.environment import plain_interact_environment, \
     batch_plain_interact_environment, BatchedTwentyQuestionsEnv
-from LLM_rep_RL.data import DummyDataset, get_bc_dataloader, ReplayBuffer
+from archer.data import DummyDataset, get_bc_dataloader, ReplayBuffer
 import numpy as np
 from torch.utils.data import Dataset, DataLoader
 from tqdm import tqdm

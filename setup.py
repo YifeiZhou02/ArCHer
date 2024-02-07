@@ -5,14 +5,14 @@ import setuptools
 #     sys.exit('Python>=3.7 is required by archer.')
 
 setuptools.setup(
-    name="LLM_rep_RL",
+    name="archer",
     version='0.1.0',
-    url="https://github.com/YifeiZhou02/LLM_rep_RL",
+    url="https://github.com/YifeiZhou02/ArCHer",
     author=("Yifei Zhou"),
-    description="LLM_rep_RL",
+    description="Research code for ArCHer (Actor Critic Framework with Hierarchical Structures)",
     long_description=open("README.md", "r", encoding='utf-8').read(),
     long_description_content_type="text/markdown",
-    keywords='LLM_rep_RL',
+    keywords='ArCHer',
     license='MIT',
     packages=setuptools.find_packages(),
     # install_requires=open("requirements.txt", "r").read().split(),

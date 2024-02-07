@@ -8,7 +8,7 @@ from typing import Tuple
 import torch.nn as nn
 import numpy as np
 from transformers import RobertaTokenizer, RobertaModel
-from LLM_rep_RL.models.critic import DoubleCritic
+from archer.models.critic import DoubleCritic
 
 class ArcherAgent(torch.nn.Module):
     def __init__(self, device, accelerator, policy_lm = "gpt2", cache_dir = '~/.cache', dropout = 0.5,\

@@ -1,9 +1,9 @@
 import torch
 import transformers
 from tqdm import tqdm
-from LLM_rep_RL.algorithms.bc import bc_loss
+from archer.algorithms.bc import bc_loss
 from torch.utils.data import DataLoader
-from LLM_rep_RL.utils import DummyDataset
+from archer.utils import DummyDataset
 import copy
 import threading
 from typing import Tuple

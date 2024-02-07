@@ -1,11 +1,11 @@
 import torch
 import transformers
 from tqdm import tqdm
-from LLM_rep_RL.environment import TwentyQuestionsEnv, BatchedTwentyQuestionsEnv,\
+from archer.environment import TwentyQuestionsEnv, BatchedTwentyQuestionsEnv,\
     BatchedAdventureEnv, BatchedGuessMyCityEnv, BatchedWebShopEnv
-from LLM_rep_RL.models import ArcherAgent, CHAIAgent
-from LLM_rep_RL.algorithms import offpolicy_train_loop
-from LLM_rep_RL.utils import colorful_print
+from archer.models import ArcherAgent, CHAIAgent
+from archer.algorithms import offpolicy_train_loop
+from archer.utils import colorful_print
 import torch.nn as nn
 import numpy as np 
 import wandb

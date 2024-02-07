@@ -1,9 +1,9 @@
-from LLM_rep_RL.environment import batch_interact_environment
-from LLM_rep_RL.data import DummyDataset,  ReplayBuffer
+from archer.environment import batch_interact_environment
+from archer.data import DummyDataset,  ReplayBuffer
 import numpy as np
 from torch.utils.data import Dataset, DataLoader
 from tqdm import tqdm
-from LLM_rep_RL.algorithms.archer import ArcherTrainer
+from archer.algorithms.archer import ArcherTrainer
 import wandb
 import threading
 import os
