@@ -16,15 +16,15 @@ eval_freq: 1
 capacity: 10000 #replay buffer size
 rollout_size: 32 #number of rollout trajectories for each update
 eval_size: 32 #number of trajectories for evaluation
-batch_size: 8
+batch_size: 4
 iterations: 2000 #total number of iterations
 epochs: 5 #number of epochs for the critic each iteration
 actor_epochs: 3 #number of epochs for the actor each iteration
 warmup_iter: 20 #number of iterations without updating the policy
-grad_accum_steps: 32
+grad_accum_steps: 64
 do_sample: True
 temperature: 1.0
-critic_lr: 2e-5
+critic_lr: 1e-5
 lm_lr: 1e-6
 env_idx: null #set to null if don't want to reset to a specific environment
 gamma: 0.95 #discount factor

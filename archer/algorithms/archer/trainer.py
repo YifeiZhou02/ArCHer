@@ -1,9 +1,8 @@
 import torch
 import transformers
 from tqdm import tqdm
-from archer.algorithms.bc import bc_loss
 from torch.utils.data import DataLoader
-from archer.utils import DummyDataset
+from archer.data import DummyDataset
 import copy
 import threading
 from typing import Tuple
@@ -35,9 +34,6 @@ class ArcherTrainer():
         self.agent = agent
         self.tokenizer = tokenizer
         self.lm_optimizer = torch.optim.Adam(agent.model.parameters(), lr = lm_lr)
-        # self.critic_optimizer = torch.optim.Adam([{"params": agent.model.parameters()},\
-        #                                           {"params": agent.critic.parameters(), "lr": critic_lr}],\
-        #                                             lr = lm_lr/10)
         self.critic_optimizer = torch.optim.Adam(agent.critic.parameters(), lr = critic_lr)
         self.criterion = torch.nn.MSELoss()
         self.grad_accum_steps = grad_accum_steps
@@ -51,11 +47,6 @@ class ArcherTrainer():
         self.critic_optimizer, self.lm_optimizer = self.accelerator.prepare(self.critic_optimizer, self.lm_optimizer)
 
     def critic_loss(self, observation, action, reward, next_observation, done, mc_return,**kwargs):
-        # observation = observation
-        # next_observation = next_observation
-        # action = action
-        # import IPython; IPython.embed()
-        # self.critic_optimizer.zero_grad()
         reward = torch.Tensor(reward).to(self.accelerator.unwrap_model(self.agent.model).device, dtype = self.accelerator.unwrap_model(self.agent.model).dtype).flatten()
         done = torch.Tensor(done).to(self.accelerator.unwrap_model(self.agent.model).device, dtype = self.accelerator.unwrap_model(self.agent.model).dtype).flatten()
         q1, q2, v1, v2 = self.agent.critic(observation, action, detach_model=False)
@@ -64,17 +55,12 @@ class ArcherTrainer():
             pi_action = self.agent.get_action(copy.deepcopy(observation))
             # target_q1, target_q2 = self.agent.get_q(observation, pi_action, detach_model=False)
             target_q1, target_q2, _ , _ = self.agent.target_critic(copy.deepcopy(observation), pi_action, detach_model=False)
-        # v1, v2 = self.agent.critic(copy.deepcopy(observation), detach_model=False)
-        # v1 = torch.zeros_like(q1)
-        # v2 = torch.zeros_like(q2)
         q1 = q1.flatten()
         q2 = q2.flatten()
         v1 = v1.flatten()
         v2 = v2.flatten()
         target_q1 = target_q1.flatten()
         target_q2 = target_q2.flatten()
-        # target_q1 = torch.zeros_like(v1)
-        # target_q2 = torch.zeros_like(v2)
         with torch.no_grad():
             #action is dummy here
             _, _ , target_v1, target_v2 = self.agent.target_critic(next_observation, copy.deepcopy(action))
@@ -84,21 +70,9 @@ class ArcherTrainer():
         # target_v2 = torch.zeros_like(q2)
         q1_loss = self.criterion(q1, target_v1)
         q2_loss = self.criterion(q2, target_v2)
-        # TODO: tentatively iql loss
-        u1 = v1 - target_q1
-        v1_loss = torch.mean(torch.abs(0.9 - (u1 < 0).float())*u1**2)
-        u2 = v2 - target_q2
-        v2_loss = torch.mean(torch.abs(0.9 - (u2 < 0).float())*u2**2)
-        # v1_loss = self.criterion(v1, target_q1)
-        # v2_loss = self.criterion(v2, target_q2)
-        # q1_loss = self.criterion(q1, torch.maximum(target_v1, mc_return))
-        # q2_loss = self.criterion(q2, torch.maximum(target_v2, mc_return))
-        # v1_loss = self.criterion(v1, torch.maximum(target_q1, mc_return))
-        # v2_loss = self.criterion(v2, torch.maximum(target_q2, mc_return))
+        v1_loss = self.criterion(v1, target_q1)
+        v2_loss = self.criterion(v2, target_q2)
         self.accelerator.backward((q1_loss+q2_loss+v1_loss+ v2_loss))
-        # (q1_loss+q2_loss+v1_loss+ v2_loss).backward()
-        # self.critic_optimizer.step()
-        # print("finish one forward pass")
         q1_loss, q2_loss, v1_loss, v2_loss = q1_loss.detach().cpu(), q2_loss.detach().cpu(),\
                                              v1_loss.detach().cpu(), v2_loss.detach().cpu()
         q1, q2, v1, v2, target_q1, target_q2 = q1.detach().cpu(), q2.detach().cpu(), v1.detach().cpu(),\
@@ -131,9 +105,6 @@ class ArcherTrainer():
                     "target_q2.max": torch.max(target_q2),
                     "target_q2.min": torch.min(target_q2),
                     "target_q2.std": torch.std(target_q2),}
-        # return q1_loss, q2_loss, v1_loss, v2_loss, \
-        #         q1, q2, v1, v2, target_q1, target_q2
-        # return {"q1_loss": q1_loss.item(), "q2_loss": q2_loss.item}
 
     def actor_loss(self, observation, pi_action, advantage, **kwargs):
         # with torch.no_grad():
@@ -147,22 +118,12 @@ class ArcherTrainer():
         if isinstance(log_prob, Tuple):
             values, log_prob, mask = log_prob
             values = values.squeeze(-1)
-            # values = values * 0
             advantage = advantage.reshape(-1, 1).broadcast_to(values.size())
             value_loss = torch.mean(((advantage - values)*mask)**2)
             with torch.no_grad():
                 residual_advantage = advantage - values
             pg_loss = -torch.mean(torch.sum(residual_advantage*log_prob*mask, dim = 1))
 
-        # import IPython; IPython.embed()
-        # with torch.no_grad():
-        #     # old_log_prob = self.agent.get_log_prob(observation, action)
-        #     q1, q2 = self.agent.get_q(observation, action)
-        #     q = torch.minimum(q1, q2)
-        #     v1, v2 = self.agent.get_v(observation) 
-        #     v = torch.minimum(v1, v2)
-        #     advantages = q - v
-        # breakpoint()
         else:
             advantages = advantage.flatten()
             values = torch.zeros_like(advantages)

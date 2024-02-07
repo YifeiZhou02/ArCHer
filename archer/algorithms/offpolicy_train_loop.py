@@ -48,7 +48,7 @@ def offpolicy_train_loop(env,\
                             grad_accum_steps=grad_accum_steps,
                             max_grad_norm=max_grad_norm)
     replay_buffer= ReplayBuffer(batch_size= batch_size, capacity=capacity)
-    if save_path is not None and accelerator.is_main_process:
+    if accelerator.is_main_process:
         if os.path.exists(os.path.join(save_path, 'trainer.pt')):
             # print("Not using existing checkpoint")
             print("Loading from checkpoint")
@@ -62,38 +62,44 @@ def offpolicy_train_loop(env,\
     print(">>>start iterations")
     for i in tqdm(range(iterations)):
         # print(">>>Interacting with Environment")
-        trajectories = batch_interact_environment(agent = agent,\
-                                        tokenizer= tokenizer,\
-                                        env = env,\
-                                        num_trajectories= rollout_size,\
-                                        env_idx = env_idx,
-                                        use_tqdm=False,
-                                        temperature=temperature,
-                                        do_sample=do_sample)
-        info = {"rollout.mean": np.mean([d[0]["trajectory_reward"] for d in trajectories]),\
-                "rollout.max": np.max([d[0]["trajectory_reward"] for d in trajectories]),\
-                "rollout.min": np.min([d[0]["trajectory_reward"] for d in trajectories])}
-        if (i+1) % eval_freq == 0:
-            old_sample = agent.do_sample
-            agent.do_sample = False
-            eval_trajectories =  batch_interact_environment(agent = agent,\
-                                                tokenizer= tokenizer,\
-                                                env = eval_env,\
-                                                num_trajectories=  max(eval_size, eval_env.bsize),\
-                                                env_idx = env_idx,
-                                                use_tqdm=False,
-                                                temperature=temperature,
-                                                do_sample=do_sample)
-            agent.do_sample = old_sample
-            info.update({"eval_rollout.mean": np.mean([d[0]["trajectory_reward"] for d in eval_trajectories]),\
-                    "eval_rollout.max": np.max([d[0]["trajectory_reward"] for d in eval_trajectories]),\
-                    "eval_rollout.min": np.min([d[0]["trajectory_reward"] for d in eval_trajectories]),})
-        data = sum(trajectories, [])
-        for t in data:
-            replay_buffer.insert(**t)
-        info.update({"rollout.reward.mean": np.mean([d["reward"] for d in data]),\
-                "rollout.reward.max": np.max([d["reward"] for d in data]),\
-                "rollout.reward.min": np.min([d["reward"] for d in data])})
+        if accelerator.is_main_process:
+            trajectories = batch_interact_environment(agent = agent,\
+                                            tokenizer= tokenizer,\
+                                            env = env,\
+                                            num_trajectories= rollout_size,\
+                                            env_idx = env_idx,
+                                            use_tqdm=False,
+                                            temperature=temperature,
+                                            do_sample=do_sample)
+            info = {"rollout.mean": np.mean([d[0]["trajectory_reward"] for d in trajectories]),\
+                    "rollout.max": np.max([d[0]["trajectory_reward"] for d in trajectories]),\
+                    "rollout.min": np.min([d[0]["trajectory_reward"] for d in trajectories])}
+            if (i+1) % eval_freq == 0:
+                old_sample = agent.do_sample
+                agent.do_sample = False
+                eval_trajectories =  batch_interact_environment(agent = agent,\
+                                                    tokenizer= tokenizer,\
+                                                    env = eval_env,\
+                                                    num_trajectories=  max(eval_size, eval_env.bsize),\
+                                                    env_idx = env_idx,
+                                                    use_tqdm=False,
+                                                    temperature=temperature,
+                                                    do_sample=do_sample)
+                agent.do_sample = old_sample
+                info.update({"eval_rollout.mean": np.mean([d[0]["trajectory_reward"] for d in eval_trajectories]),\
+                        "eval_rollout.max": np.max([d[0]["trajectory_reward"] for d in eval_trajectories]),\
+                        "eval_rollout.min": np.min([d[0]["trajectory_reward"] for d in eval_trajectories]),})
+            data = sum(trajectories, [])
+            for t in data:
+                replay_buffer.insert(**t)
+            info.update({"rollout.reward.mean": np.mean([d["reward"] for d in data]),\
+                    "rollout.reward.max": np.max([d["reward"] for d in data]),\
+                    "rollout.reward.min": np.min([d["reward"] for d in data])})
+            torch.save(replay_buffer, os.path.join(save_path, 'replay_buffer.pt'))
+        else:
+            info = {}
+        accelerator.wait_for_everyone()
+        replay_buffer = torch.load(os.path.join(save_path, 'replay_buffer.pt'))
         # data = list(filter(lambda x: x["reward"] >0, data))
         print("Training")
         info.update(trainer.update(replay_buffer, no_update_actor = (i < warmup_iter)))

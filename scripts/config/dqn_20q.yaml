@@ -5,7 +5,7 @@ defaults:
 
 env_load_path: '/nfs/kun2/users/yifei/llm_rl/20q_t5_oracle.pt'
 checkpoint_path: '/nfs/kun2/users/yifei/llm_rl/twenty_questions_gpt2_model0_full.pt'
-# save_path: '/nfs/kun2/users/yifei/llm_rl/dqn_20q_1'
+save_path: '/nfs/kun2/users/yifei/llm_rl/dqn_20q_1'
 
 # env
 env_name: twenty_questions
@@ -13,6 +13,6 @@ policy_lm: "gpt2"
 agent_type: "archer"
 
 # wandb logging
-use_wandb: False
+use_wandb: True
 project_name: 'llm_rl_20q'
-run_name: 'test-dqn-acc-reinforce'
+run_name: 'archer-acc'
