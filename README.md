@@ -1,5 +1,11 @@
 # ArCHer
-Research Code for "ArCHer: Training Language Model Agents via Hierarchical Multi-Turn RL" (Yifei Zhou, Andrea Zanette, Jiayi Pan, Aviral Kumar, Sergey Levine)
+Research Code for "ArCHer: Training Language Model Agents via Hierarchical Multi-Turn RL" 
+
+Yifei Zhou, Andrea Zanette, Jiayi Pan, Aviral Kumar, Sergey Levine
+
+![archer_diagram 001](https://github.com/YifeiZhou02/ArCHer/assets/83000332/b874432a-d330-49a5-906c-bba37e17f831)
+
+
 This repo supports the following methods:
 
 - [ArCHer][1]
