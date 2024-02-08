@@ -35,7 +35,7 @@ def main(config: "DictConfig"):
                                         cache_dir=config.cache_dir)
         eval_env = env
     elif config.env_name == "adventure":
-        env = BatchedAdventureEnv(max_steps=50)
+        env = BatchedAdventureEnv(env_load_path = config.env_load_path,max_steps=50)
         eval_env = env
     elif config.env_name == "guess_my_city":
         env = BatchedGuessMyCityEnv(env_load_path=config.env_load_path, 
