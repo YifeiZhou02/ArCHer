@@ -3,7 +3,7 @@ defaults:
   - default
   - _self_
 
-env_load_path: "http://127.0.0.1:3001"
+env_load_path: "http://127.0.0.1:3000"
 checkpoint_path: ''
 save_path: '/nfs/kun2/users/yifei/llm_rl/webshop_1'
 
