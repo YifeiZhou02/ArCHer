@@ -17,6 +17,6 @@ Offline datasets and SFT checkpoints used in the paper can be found [here](https
 ### Modify Paths
 Change the ```huggingface_token``` and ```wandb_token``` in ```scripts/config/default.yaml``` .
 
-**Guess My CITY**, **Twenty Questions**, **Detective Game** are directly usable by changing ```env_load_path```, ```checkpoint_path```, ```save_path``` in corresponding configurations in ```scripts/config``` such as ```scripts/config/archer_20q.yaml```.
+**Guess My CITY**, **Twenty Questions**, **Detective Game** are directly usable by changing ```env_load_path``` (data to use for each environment), ```checkpoint_path``` (the SFT checkpoint to start with as provided), ```save_path``` (required, the path to save checkpoint and replay buffer) in corresponding configurations in ```scripts/config``` such as ```scripts/config/archer_20q.yaml```.
 
 
