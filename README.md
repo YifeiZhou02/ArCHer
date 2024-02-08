@@ -11,14 +11,14 @@ This repo supports the following methods:
 
 
 And the following environments
-- [Detective Game][1]
-- [Twenty Questions][2]
-- [Guess My City][2]
-- [Webshop][3]
+- [Detective Game][3]
+- [Twenty Questions][4]
+- [Guess My City][4]
+- [Webshop][5]
 
-[1]: https://arxiv.org/abs/1909.05398
-[2]: https://lmrl-gym.github.io/
-[3]: https://webshop-pnlp.github.io/
+[3]: https://arxiv.org/abs/1909.05398
+[4]: https://lmrl-gym.github.io/
+[5]: https://webshop-pnlp.github.io/
 
 
 ## Quick Start
