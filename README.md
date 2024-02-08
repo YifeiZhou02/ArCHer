@@ -13,5 +13,6 @@ python -m pip install -e .
 python3 -m spacy download en_core_web_sm
 ```
 ### Download Datasets and Checkpoints
+Offline datasets and SFT checkpoints used in the paper can be found [here](https://drive.google.com/drive/folders/1pRocQI0Jv479G4vNMtQn1JOq8Shf2B6U?usp=sharing).
 ### Modify Paths
 
