@@ -45,6 +45,7 @@ You can directly run experiments with the following commands:
 cd scripts
 python run.py --config-name archer_20q
 ```
+Different environments and method can be run with corresponding configurations.
 
 ## Webshop Env Installation (Optional)
 To use the webshop env, you need to do the following setups in addition. This step can be skipped if you do not plan to use Webshop.
@@ -75,4 +76,20 @@ DEFAULT_FILE_PATH = join(BASE_DIR, '../data/items_shuffle.json')
 Then start the server at `128.0.0.1:3000`
 ```
 python -m web_agent_site.app --log --attrs
+```
+### Run WebShop Experiments
+An additional steps is required for running experiments on Webshop.
+```bash
+python -m PATH_TO_WEBSHOP/web_agent_site.app --log --attrs &
+cd scripts
+python run.py --config-name archer_webshop
+```
+
+## Distributed Data Parallel with [Accelerate](https://huggingface.co/docs/accelerate/en/index)
+Experiments on single GPU can be slow (e.g. ArCHer on Twenty Questions can take a week), so this codebase supports Distributed Data Parallel.
+
+First, you will need to set up the config for accelerate by changing the accelerate config file ```scripts/config/accelerate_config/default_config.yaml``` . Then change to run command to:
+```bash
+cd scripts
+accelerate launch --config_file accelerate_config/default_config.yaml run.py --config-name archer_20q
 ```
