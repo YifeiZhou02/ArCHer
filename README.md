@@ -19,10 +19,10 @@ Change the ```huggingface_token``` and ```wandb_token``` in ```scripts/config/de
 
 **Guess My CITY**, **Twenty Questions**, **Detective Game** are directly usable by changing ```env_load_path``` (data to use for each environment), ```checkpoint_path``` (the SFT checkpoint to start with as provided), ```save_path``` (required, the path to save checkpoint and replay buffer) in corresponding configurations in ```scripts/config``` such as ```scripts/config/archer_20q.yaml```. For **Webshop**, additional installation is required in addition to modifying paths in the corresponding configuration.
 
-### Webshop Env Installation
-To use the webshop env, you need to do the following setups in addition.
+### Webshop Env Installation (Optional)
+To use the webshop env, you need to do the following setups in addition. This step can be skipped if you do not plan to use Webshop.
 
-Go to [WebShop's Github](https://github.com/princeton-nlp/WebShop) and follow the instructions to install the webshop env
+Go to [WebShop's Github](https://github.com/princeton-nlp/WebShop) and follow the instructions to install the Webshop env
 
 ```
 git clone https://github.com/princeton-nlp/webshop.git webshop
