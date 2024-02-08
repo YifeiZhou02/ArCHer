@@ -1,7 +1,7 @@
 # ArCHer
 Research Code for "ArCHer: Training Language Model Agents via Hierarchical Multi-Turn RL" 
 
-Yifei Zhou, Andrea Zanette, Jiayi Pan, Aviral Kumar, Sergey Levine
+[Yifei Zhou](https://yifeizhou02.github.io/), [Andrea Zanette](https://azanette.com/), [Jiayi Pan](https://www.jiayipan.me/), [Aviral Kumar](https://aviralkumar2907.github.io/), [Sergey Levine](https://people.eecs.berkeley.edu/~svlevine/)
 
 ![archer_diagram 001](https://github.com/YifeiZhou02/ArCHer/assets/83000332/b874432a-d330-49a5-906c-bba37e17f831)
 
@@ -43,7 +43,7 @@ Offline datasets and SFT checkpoints used in the paper can be found [here](https
 ### 3. Modify Paths
 Change the ```huggingface_token``` and ```wandb_token``` in ```scripts/config/default.yaml``` .
 
-**Guess My CITY**, **Twenty Questions**, **Detective Game** are directly usable by changing ```env_load_path``` (data to use for each environment), ```checkpoint_path``` (the SFT checkpoint to start with as provided), ```save_path``` (required, the path to save checkpoint and replay buffer) in corresponding configurations in ```scripts/config``` such as ```scripts/config/archer_20q.yaml```. For **Webshop**, additional installation is required in addition to modifying paths in the corresponding configuration.
+**Guess My City**, **Twenty Questions**, **Detective Game** are directly usable by changing ```env_load_path``` (data to use for each environment), ```checkpoint_path``` (the SFT checkpoint to start with as provided), ```save_path``` (required, the path to save checkpoint and replay buffer) in corresponding configurations in ```scripts/config``` such as ```scripts/config/archer_20q.yaml```. For **Webshop**, additional installation is required in addition to modifying paths in the corresponding configuration.
 
 ### 4. Run Experiments
 You can directly run experiments with the following commands:
