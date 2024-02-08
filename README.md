@@ -1,19 +1,25 @@
 # ArCHer
 Research Code for "ArCHer: Training Language Model Agents via Hierarchical Multi-Turn RL" (Yifei Zhou, Andrea Zanette, Jiayi Pan, Aviral Kumar, Sergey Levine)
 This repo supports the following methods:
-<ol>
-  <li>ArCHer</li>
-  <li>[Online CHAI](https://arxiv.org/abs/2204.08426)</li>
-  <li>Online Filtered BC</li>
-</ol>
+
+- [ArCHer][1]
+- [Online CHAI][2]
+- Online Filtered BC
+
+[1]: https://github.com/YifeiZhou02/ArCHer
+[2]: https://arxiv.org/abs/2204.08426
+
 
 And the following environments
-<ol>
-  <li>[Detective Game](https://arxiv.org/abs/1909.05398)</li>
-  <li>[Twenty Questions](https://lmrl-gym.github.io/)</li>
-  <li>[Guess My City](https://lmrl-gym.github.io/)</li>
-  <li>[Webshop](https://webshop-pnlp.github.io/)</li>
-</ol>
+- [Detective Game][1]
+- [Twenty Questions][2]
+- [Guess My City][2]
+- [Webshop][3]
+
+[1]: https://arxiv.org/abs/1909.05398
+[2]: https://lmrl-gym.github.io/
+[3]: https://webshop-pnlp.github.io/
+
 
 ## Quick Start
 ### 1. Install Dependencies
