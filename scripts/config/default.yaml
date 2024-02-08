@@ -6,7 +6,8 @@ huggingface_token: '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'
 wandb_key: "bc507b560ebcfd048dff040741fcebae2184bd59"
 
 policy_lm: "gpt2"
-agent_type: "dqn"
+critic_lm: "roberta-base"
+agent_type: "archer"
 use_baseline: False
 max_new_tokens: 32
 save_freq: 25
@@ -14,7 +15,7 @@ eval_freq: 1
 
 #training hyperparameters
 capacity: 10000 #replay buffer size
-rollout_size: 32 #number of rollout trajectories for each update
+rollout_size: 128 #number of rollout trajectories for each update
 eval_size: 32 #number of trajectories for evaluation
 batch_size: 4
 iterations: 2000 #total number of iterations

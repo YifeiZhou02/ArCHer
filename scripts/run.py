@@ -38,7 +38,9 @@ def main(config: "DictConfig"):
         env = BatchedAdventureEnv(max_steps=50)
         eval_env = env
     elif config.env_name == "guess_my_city":
-        env = BatchedGuessMyCityEnv()
+        env = BatchedGuessMyCityEnv(env_load_path=config.env_load_path, 
+                                        device=device, 
+                                        cache_dir=config.cache_dir)
         eval_env = env
     elif config.env_name == "webshop":
         env = BatchedWebShopEnv()
@@ -54,7 +56,7 @@ def main(config: "DictConfig"):
         config.warmup_iter = config.iterations
     elif config.agent_type.lower() == "archer":
         agent = ArcherAgent(device=device, accelerator=accelerator, temperature=config.temperature, do_sample=config.do_sample, \
-                            policy_lm=config.policy_lm, cache_dir=config.cache_dir, max_new_tokens=config.max_new_tokens)
+                            policy_lm=config.policy_lm, critic_lm=config.critic_lm,cache_dir=config.cache_dir, max_new_tokens=config.max_new_tokens)
     else:
         raise NotImplementedError("Agent not implemented.")
     state_dict = torch.load(config.checkpoint_path, map_location=device)['model_state_dict']

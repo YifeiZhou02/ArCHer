@@ -1,20 +1,18 @@
 import torch
 import transformers
 from tqdm import tqdm
-from transformers import AutoModelForCausalLM, AutoTokenizer
-from transformers import LlamaForCausalLM, LlamaTokenizer
-from transformers import AutoTokenizer, RobertaModel
+from transformers import AutoTokenizer, AutoModel
 from typing import Tuple
 import torch.nn as nn
 import numpy as np
 from transformers import RobertaTokenizer, RobertaModel
 class DoubleCritic(torch.nn.Module):
-    def __init__(self, device, accelerator, cache_dir, in_dim, out_dim):
+    def __init__(self, device, accelerator, critic_lm, cache_dir, in_dim, out_dim):
         super(DoubleCritic, self).__init__()
         self.device = device
         self.accelerator = accelerator
-        self.base_lm = RobertaModel.from_pretrained('roberta-base', cache_dir=cache_dir).to(device)
-        self.base_tokenizer = RobertaTokenizer.from_pretrained('roberta-base', cache_dir=cache_dir)
+        self.base_lm = AutoModel.from_pretrained(critic_lm, cache_dir=cache_dir).to(device)
+        self.base_tokenizer = AutoTokenizer.from_pretrained(critic_lm, cache_dir=cache_dir)
         self.base_tokenizer.truncation_side = 'left'
         self.critic1 = nn.Sequential(nn.Linear(in_dim*2, in_dim),\
                                     nn.ReLU(),\

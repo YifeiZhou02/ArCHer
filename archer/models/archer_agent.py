@@ -11,13 +11,14 @@ from transformers import RobertaTokenizer, RobertaModel
 from archer.models.critic import DoubleCritic
 
 class ArcherAgent(torch.nn.Module):
-    def __init__(self, device, accelerator, policy_lm = "gpt2", cache_dir = '~/.cache', dropout = 0.5,\
-                  do_sample = True, temperature = 1.0, max_new_tokens = 32):
+    def __init__(self, device, accelerator, policy_lm = "gpt2", critic_lm = "roberta-base", 
+                cache_dir = '~/.cache', dropout = 0.5,
+                do_sample = True, temperature = 1.0, max_new_tokens = 32):
         super(ArcherAgent, self).__init__()
         self.model = AutoModelForCausalLM.from_pretrained(policy_lm, cache_dir=cache_dir).to(device)
         self.policy_lm = policy_lm
-        self.critic = DoubleCritic(device, accelerator, cache_dir = cache_dir, in_dim = 768, out_dim = 1)  
-        self.target_critic = DoubleCritic(device, accelerator, cache_dir = cache_dir, in_dim = 768, out_dim = 1) 
+        self.critic = DoubleCritic(device, accelerator, critic_lm = critic_lm, cache_dir = cache_dir, in_dim = 768, out_dim = 1)  
+        self.target_critic = DoubleCritic(device, accelerator, critic_lm = critic_lm, cache_dir = cache_dir, in_dim = 768, out_dim = 1) 
         self.soft_update_target_critic(1)
         self.tokenizer =AutoTokenizer.from_pretrained(policy_lm, trust_remote_code=True, cache_dir=cache_dir)
         self.tokenizer.truncation_side = 'left'

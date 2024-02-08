@@ -5,7 +5,6 @@ from openai import OpenAI
 import logging
 logging.getLogger().setLevel(logging.CRITICAL)
 import torch
-from transformers import BartTokenizer, BartForConditionalGeneration
 from transformers import T5Tokenizer, T5ForConditionalGeneration
 import concurrent.futures
 # openai.util.logger.setLevel(logging.WARNING)
@@ -131,9 +130,6 @@ class GuessMyCityEnv():
         # guess = question.split(" ")[-1].lower()
         # return guess in self.curr_word.lower().split(",")[0] and len(guess) >= 3
 
-    def generate_answer(self, question):
-        return
-    
     def _step(self, question, answer):
         if self.done:
             return None
@@ -148,13 +144,6 @@ class GuessMyCityEnv():
             reward = 0
         self.done = done or self.count == self.max_conversation_length
         return  self.history, reward, self.done
-
-    def step(self, question):
-        if self.done:
-            return None
-        assert self.curr_word is not None, "call env.reset() first."
-        answer = self.generate_answer(question)
-        return self._step(question, answer)
         
     def reset(self, idx : Optional[int]=None):
         self.count = 0 
@@ -167,25 +156,21 @@ class GuessMyCityEnv():
         return INITIAL_STR
         # return (Text(INITIAL_STR, is_action=False),)
 
-    # def copy(self):
-    #     return TwentyQuestionsEnv(
-    #         oracle=self.oracle,
-    #         word_list=self.word_list,
-    #         max_conversation_length=self.max_conversation_length,
-    #     )
 
 class BatchedGuessMyCityEnv():
     def __init__(
         self, 
+        env_load_path: str,
+        device,
+        cache_dir: str,
         max_conversation_length: int=20,
         bsize: int=32,
-        device: str = "cuda:0"
     ):
         self.env_list = [GuessMyCityEnv(max_conversation_length) for _ in range(bsize)]
         self.bsize = bsize
-        self.tokenizer = T5Tokenizer.from_pretrained("google/flan-t5-small")
-        self.model = T5ForConditionalGeneration.from_pretrained("google/flan-t5-small").to(device)
-        self.model.load_state_dict(torch.load('/global/scratch/users/yifeizhou/20q/city_t5_oracle.pt')['model_state_dict'])
+        self.tokenizer = T5Tokenizer.from_pretrained("google/flan-t5-small", cache_dir=cache_dir)
+        self.model = T5ForConditionalGeneration.from_pretrained("google/flan-t5-small", cache_dir=cache_dir).to(device)
+        self.model.load_state_dict(torch.load(env_load_path)['model_state_dict'])
         # self.tokenizer = BartTokenizer.from_pretrained("facebook/bart-base")
         # self.model = BartForConditionalGeneration.from_pretrained("facebook/bart-base").to(device)
         # self.model.load_state_dict(torch.load('/home/yifei/llm_rl/20q_oracle/20q_bart_oracle.pt')['model_state_dict'])
