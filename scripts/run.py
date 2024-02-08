@@ -62,7 +62,14 @@ def main(config: "DictConfig"):
         #if use chai, do not update the actor
         config.warmup_iter = config.iterations
     elif config.agent_type.lower() == "archer":
-        print(">>> Using CHAI agent")
+        print(">>> Using ArCHer agent")
+        agent = ArcherAgent(device=device, accelerator=accelerator, 
+                            temperature=config.temperature, do_sample=config.do_sample, 
+                            policy_lm=config.policy_lm, critic_lm=config.critic_lm,
+                            cache_dir=config.cache_dir, max_new_tokens=config.max_new_tokens)
+    elif config.agent_type.lower() == "online_filteredbc":
+        print(">>> Using Online FilteredBC agent")
+        # the agent is the same as ArCHer, only the trainer will be different
         agent = ArcherAgent(device=device, accelerator=accelerator, 
                             temperature=config.temperature, do_sample=config.do_sample, 
                             policy_lm=config.policy_lm, critic_lm=config.critic_lm,

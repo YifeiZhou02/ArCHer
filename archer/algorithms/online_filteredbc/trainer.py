@@ -5,7 +5,7 @@ from archer.algorithms.bc import plain_bc_loss
 import copy
 import random
 from torch.utils.data import DataLoader
-from archer.utils import DummyDataset
+from archer.data import DummyDataset
 def dict_mean(dict_list):
     mean_dict = {}
     if len(dict_list) > 0:
@@ -63,4 +63,19 @@ class BCTrainer():
                 self.lm_optimizer.step()
         info.update(dict_mean(info_list))
         return info
-            
+
+    def save(self, path):
+        torch.save({'model_state_dict': self.accelerator.unwrap_model(self.agent.model).state_dict(),
+                    'critic_state_dict': self.accelerator.unwrap_model(self.agent.critic).state_dict(),
+                    'target_critic_state_dict': self.accelerator.unwrap_model(self.agent.target_critic).state_dict(),
+                    'critic_optimizer_state_dict': self.critic_optimizer.state_dict(),
+                    'lm_optimizer_state_dict': self.lm_optimizer.state_dict()}, path)
+
+    def load(self, path):
+        checkpoint = torch.load(path)
+        self.agent.model.load_state_dict(checkpoint['model_state_dict'])
+        self.agent.critic.load_state_dict(checkpoint['critic_state_dict'])
+        self.agent.target_critic.load_state_dict(checkpoint['target_critic_state_dict'])
+        self.critic_optimizer.load_state_dict(checkpoint['critic_optimizer_state_dict'])
+        self.lm_optimizer.load_state_dict(checkpoint['lm_optimizer_state_dict'])
+        return self.agent

@@ -4,6 +4,7 @@ import numpy as np
 from torch.utils.data import Dataset, DataLoader
 from tqdm import tqdm
 from archer.algorithms.archer import ArcherTrainer
+from archer.algorithms.online_filteredbc import BCTrainer
 import wandb
 import threading
 import os
@@ -35,18 +36,28 @@ def offpolicy_train_loop(env,\
                 save_path: str = None,
                 save_freq: int = 25,
                 eval_freq: int = 25,
+                agent_type: str = "archer",
                 **kwargs):
-    trainer = ArcherTrainer(agent=agent,\
-                         accelerator=accelerator,\
-                            tokenizer=tokenizer,\
-                            critic_lr = critic_lr,\
-                            lm_lr = lm_lr,\
-                            gamma = gamma,\
-                            tau = tau,\
-                            epochs = epochs,\
-                            actor_epochs = actor_epochs,
-                            grad_accum_steps=grad_accum_steps,
-                            max_grad_norm=max_grad_norm)
+    if agent_type.lower() == "chai" or agent_type.lower() == "archer":
+        trainer = ArcherTrainer(agent=agent,\
+                            accelerator=accelerator,\
+                                tokenizer=tokenizer,\
+                                critic_lr = critic_lr,\
+                                lm_lr = lm_lr,\
+                                gamma = gamma,\
+                                tau = tau,\
+                                epochs = epochs,\
+                                actor_epochs = actor_epochs,
+                                grad_accum_steps=grad_accum_steps,
+                                max_grad_norm=max_grad_norm)
+    elif agent_type.lower() == "online_filteredbc":
+        trainer = BCTrainer(agent=agent,\
+                                tokenizer=tokenizer,\
+                                accelerator=accelerator,
+                                lm_lr = lm_lr,\
+                                epochs = actor_epochs,\
+                                grad_accum_steps=grad_accum_steps,
+                                max_grad_norm=max_grad_norm)
     replay_buffer= ReplayBuffer(batch_size= batch_size, capacity=capacity)
     if accelerator.is_main_process:
         if os.path.exists(os.path.join(save_path, 'trainer.pt')):
