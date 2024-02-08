@@ -54,12 +54,19 @@ def main(config: "DictConfig"):
     # load decision model
     if config.agent_type.lower() == "chai":
         print(">>> Using CHAI agent")
-        agent = CHAIAgent(device=device, accelerator=accelerator, temperature=config.temperature, do_sample=config.do_sample, policy_lm=config.policy_lm, cache_dir=config.cache_dir)
+        agent = CHAIAgent(device=device, accelerator=accelerator, 
+                        temperature=config.temperature, 
+                        do_sample=config.do_sample, policy_lm=config.policy_lm, 
+                        critic_lm=config.critic_lm, cache_dir=config.cache_dir,
+                        max_new_tokens=config.max_new_tokens)
         #if use chai, do not update the actor
         config.warmup_iter = config.iterations
     elif config.agent_type.lower() == "archer":
-        agent = ArcherAgent(device=device, accelerator=accelerator, temperature=config.temperature, do_sample=config.do_sample, \
-                            policy_lm=config.policy_lm, critic_lm=config.critic_lm,cache_dir=config.cache_dir, max_new_tokens=config.max_new_tokens)
+        print(">>> Using CHAI agent")
+        agent = ArcherAgent(device=device, accelerator=accelerator, 
+                            temperature=config.temperature, do_sample=config.do_sample, 
+                            policy_lm=config.policy_lm, critic_lm=config.critic_lm,
+                            cache_dir=config.cache_dir, max_new_tokens=config.max_new_tokens)
     else:
         raise NotImplementedError("Agent not implemented.")
     state_dict = torch.load(config.checkpoint_path, map_location=device)['model_state_dict']

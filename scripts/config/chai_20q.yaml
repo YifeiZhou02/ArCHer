@@ -1,48 +1,20 @@
-# Adversarial Attack Config
 defaults:
- - _self_
+  - default
+  - _self_
 
-#cache directory of transformer
-cache_dir: '/global/home/users/yifeizhou/.cache'
-#token
-huggingface_token: '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'
+# algorithm
+agent_type: "chai"
 
-env_load_path: '../LLM_rep_RL/simple_game/'
-checkpoint_path: '/global/scratch/users/yifeizhou/20q/twenty_questions_gpt2_model0_full.pt'
-
-#bc dataset
-bc_data_cutoff: 50
-bc_num_trajectories: 1000
+# checkpoint
+checkpoint_path: '/nfs/kun2/users/yifei/llm_rl/twenty_questions_gpt2_model0_full.pt'
+save_path: '/nfs/kun2/users/yifei/llm_rl/chai_20q_1'
 
 # env
 env_name: twenty_questions
-policy_lm: "gpt2"
-agent_type: "chai"
+env_load_path: '/nfs/kun2/users/yifei/llm_rl/20q_t5_oracle.pt'
 
-#training hyperparameters
-beta: 0.0
-capacity: 10000
-rollout_size: 32
-eval_size: 32
-warmup_size: 0
-batch_size: 8
-iterations: 2000
-epochs: 50
-ppo_epochs: 3
-clip_range: 0.1
-warmup_iter: 20000000
-grad_accum_steps: 32
-actor_update_freq: 1
-do_sample: True
-temperature: 1.0
-critic_lr: 2e-5
-lm_lr: 1e-6
-env_idx: null #set to null if don't want to reset to a specific environment
-gamma: 0.95
-tau: 0.1
-max_grad_norm: 1.0
 
-use_wandb: True
-wandb_key: "bc507b560ebcfd048dff040741fcebae2184bd59"
+# wandb logging
+use_wandb: False
 project_name: 'llm_rl_20q'
-run_name: 'chai'
+run_name: 'archer-acc'

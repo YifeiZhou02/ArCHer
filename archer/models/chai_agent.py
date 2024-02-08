@@ -2,31 +2,34 @@ import torch
 import transformers
 from tqdm import tqdm
 from transformers import AutoModelForCausalLM, AutoTokenizer
-from transformers import LlamaForCausalLM, LlamaTokenizer
 from transformers import AutoTokenizer, RobertaModel
-from peft import get_peft_config, PeftModel, PeftConfig, get_peft_model, LoraConfig, TaskType
 import torch.nn as nn
 import numpy as np
 from transformers import RobertaTokenizer, RobertaModel
 from archer.models.critic import DoubleCritic
 class CHAIAgent(torch.nn.Module):
-    def __init__(self, device, accelerator, policy_lm = "gpt2", cache_dir = '~/.cache', dropout = 0.5,\
-                  do_sample = True, temperature = 1.0):
+    def __init__(self, device, accelerator, policy_lm = "gpt2", critic_lm="roberta-base",
+                cache_dir = '~/.cache', max_new_tokens=32,
+                do_sample = True, temperature = 1.0):
         super(CHAIAgent, self).__init__()
         self.model = AutoModelForCausalLM.from_pretrained(policy_lm, cache_dir = cache_dir).to(device)
-        self.critic = DQNDoubleCritic(device, accelerator=accelerator, cache_dir = cache_dir, in_dim = 768, out_dim = 1)  
-        self.target_critic = DQNDoubleCritic(device, accelerator=accelerator, cache_dir = cache_dir, in_dim = 768, out_dim = 1) 
+        self.critic = DoubleCritic(device, accelerator=accelerator, 
+                                    critic_lm=critic_lm,cache_dir = cache_dir, 
+                                    in_dim = 768, out_dim = 1)  
+        self.target_critic = DoubleCritic(device, accelerator=accelerator, 
+                                    critic_lm=critic_lm,cache_dir = cache_dir, 
+                                    in_dim = 768, out_dim = 1) 
         self.soft_update_target_critic(1)
         self.tokenizer =AutoTokenizer.from_pretrained(policy_lm, trust_remote_code=True)
         self.tokenizer.truncation_side = 'left'
         self.tokenizer.pad_token = self.tokenizer.eos_token
         self.tokenizer.pad_token_id = self.tokenizer.eos_token_id
         self.device = device
-        self.dropout = torch.nn.Dropout(p=dropout)
         self.softmax = torch.nn.Softmax(dim= -1)
         self.do_sample = do_sample
         self.temperature = temperature
         self.accelerator = accelerator
+        self.max_new_tokens = max_new_tokens
 
     def prepare(self):
         # self.model = self.accelerator.prepare(self.model)
@@ -42,7 +45,7 @@ class CHAIAgent(torch.nn.Module):
         # print(inputs_embeds.shape)
         # try:
         outputs = self.accelerator.unwrap_model(self.model).generate(**obs_ids,\
-                                    max_new_tokens=32, do_sample=self.do_sample, temperature = self.temperature,\
+                                    max_new_tokens=self.max_new_tokens, do_sample=self.do_sample, temperature = self.temperature,\
                                     pad_token_id = self.tokenizer.eos_token_id).cpu()
         outputs = outputs[:, context_len:]
         # except:
