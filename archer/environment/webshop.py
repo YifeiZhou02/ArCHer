@@ -239,6 +239,9 @@ class WebShopFullObsEnv:
 class BatchedWebShopEnv():
     def __init__(
         self, 
+        env_load_path: str,
+        lower: int,
+        upper: int,
         bsize: int=32,
     ):
 
@@ -246,13 +249,15 @@ class BatchedWebShopEnv():
         #    f"http://127.0.0.1:{i}" for i in range(3000, 3002)
         # ]
         self.urls = [
-           f"http://127.0.0.1:3021",
+           env_load_path,
           #  f"http://127.0.0.1:3001"
         ]
         self.bsize = bsize
         assert self.bsize % len(self.urls) == 0, "Batch size must be a multiple of the number of urls"
         self.url_per_dp = [self.urls[i % len(self.urls)] for i in range(self.bsize)]
         self.concurrent_group = []
+        self.lower = lower
+        self.upper = upper
         group_size = len(self.urls)
         for i in range(0, self.bsize, group_size):
             self.concurrent_group.append(list(range(i, i + group_size)))
@@ -260,7 +265,7 @@ class BatchedWebShopEnv():
     def reset(self, idx: Optional[List[int]] = None):
         self.env_list = [WebShopFullObsEnv(url=url) for url in self.url_per_dp]
         if idx is None:
-            idx = random.choices(range(2000,3000), k=self.bsize)
+            idx = random.choices(range(self.lower,self.upper), k=self.bsize)
         session_ids = [f"fixed_{i}" for i in idx]
         return [env.reset(id) for env, id in zip(self.env_list, session_ids)]
         # results = []

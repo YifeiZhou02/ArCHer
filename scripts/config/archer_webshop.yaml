@@ -1,0 +1,19 @@
+# Adversarial Attack Config
+defaults:
+  - default
+  - _self_
+
+env_load_path: "http://127.0.0.1:3001"
+checkpoint_path: ''
+save_path: '/nfs/kun2/users/yifei/llm_rl/webshop_1'
+
+# env
+env_name: webshop
+# uses webshop queries from webshop_lower to webshop_upper
+webshop_lower: 2000 
+webshop_upper: 2100
+
+# wandb logging
+use_wandb: False
+project_name: 'llm_rl_20q'
+run_name: 'archer-acc'

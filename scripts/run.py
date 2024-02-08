@@ -35,7 +35,8 @@ def main(config: "DictConfig"):
                                         cache_dir=config.cache_dir)
         eval_env = env
     elif config.env_name == "adventure":
-        env = BatchedAdventureEnv(env_load_path = config.env_load_path,max_steps=50)
+        env = BatchedAdventureEnv(env_load_path = config.env_load_path,
+                                    max_steps=50)
         eval_env = env
     elif config.env_name == "guess_my_city":
         env = BatchedGuessMyCityEnv(env_load_path=config.env_load_path, 
@@ -43,7 +44,9 @@ def main(config: "DictConfig"):
                                         cache_dir=config.cache_dir)
         eval_env = env
     elif config.env_name == "webshop":
-        env = BatchedWebShopEnv()
+        env = BatchedWebShopEnv(lower=config.webshop_lower,
+                                upper=config.webshop_upper,
+                                env_load_path=config.env_load_path)
         eval_env = env
     else:
         raise NotImplementedError("Environment not implemented.")
