@@ -1,8 +1,22 @@
 # ArCHer
 Research Code for "ArCHer: Training Language Model Agents via Hierarchical Multi-Turn RL" (Yifei Zhou, Andrea Zanette, Jiayi Pan, Aviral Kumar, Sergey Levine)
+This repo supports the following methods:
+<ol>
+  <li>ArCHer</li>
+  <li>[Online CHAI](https://arxiv.org/abs/2204.08426)</li>
+  <li>Online Filtered BC</li>
+</ol>
+
+And the following environments
+<ol>
+  <li>[Detective Game](https://arxiv.org/abs/1909.05398)</li>
+  <li>[Twenty Questions](https://lmrl-gym.github.io/)</li>
+  <li>[Guess My City](https://lmrl-gym.github.io/)</li>
+  <li>[Webshop](https://webshop-pnlp.github.io/)</li>
+</ol>
 
 ## Quick Start
-### Install Dependencies
+### 1. Install Dependencies
 ```bash
 conda create -n archer python==3.10
 conda activate archer
@@ -12,14 +26,21 @@ cd ArCHer
 python -m pip install -e .
 python3 -m spacy download en_core_web_sm
 ```
-### Download Datasets and Checkpoints
+### 2. Download Datasets and Checkpoints
 Offline datasets and SFT checkpoints used in the paper can be found [here](https://drive.google.com/drive/folders/1pRocQI0Jv479G4vNMtQn1JOq8Shf2B6U?usp=sharing).
-### Modify Paths
+### 3. Modify Paths
 Change the ```huggingface_token``` and ```wandb_token``` in ```scripts/config/default.yaml``` .
 
 **Guess My CITY**, **Twenty Questions**, **Detective Game** are directly usable by changing ```env_load_path``` (data to use for each environment), ```checkpoint_path``` (the SFT checkpoint to start with as provided), ```save_path``` (required, the path to save checkpoint and replay buffer) in corresponding configurations in ```scripts/config``` such as ```scripts/config/archer_20q.yaml```. For **Webshop**, additional installation is required in addition to modifying paths in the corresponding configuration.
 
-### Webshop Env Installation (Optional)
+### 4. Run Experiments
+You can directly run experiments with the following commands:
+```bash
+cd scripts
+python run.py --config-name archer_20q
+```
+
+## Webshop Env Installation (Optional)
 To use the webshop env, you need to do the following setups in addition. This step can be skipped if you do not plan to use Webshop.
 
 Go to [WebShop's Github](https://github.com/princeton-nlp/WebShop) and follow the instructions to install the Webshop env
