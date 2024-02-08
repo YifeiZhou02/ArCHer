@@ -2,12 +2,13 @@ defaults:
   - default
   - _self_
 
-env_load_path: '/nfs/kun2/users/yifei/llm_rl/20q_t5_oracle.pt'
-checkpoint_path: '/nfs/kun2/users/yifei/llm_rl/twenty_questions_gpt2_model0_full.pt'
+# checkpoint
+checkpoint_path: '/nfs/kun2/users/yifei/llm_rl/gpt2bc_20q.pt'
 save_path: '/nfs/kun2/users/yifei/llm_rl/archer_20q_1'
 
 # env
 env_name: twenty_questions
+env_load_path: '/nfs/kun2/users/yifei/llm_rl/20q_t5_oracle.pt'
 
 # wandb logging
 use_wandb: False
