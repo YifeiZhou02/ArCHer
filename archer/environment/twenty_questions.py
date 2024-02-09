@@ -32,6 +32,7 @@ DEFAULT_OBJECT_DICT = {
 DEFAULT_OBJECT_LIST = sum([d for d in DEFAULT_OBJECT_DICT.values()], [])
 # random.seed(42)
 # DEFAULT_OBJECT_LIST = random.sample(DEFAULT_OBJECT_LIST, k=5)
+DEFAULT_OBJECT_LIST = [DEFAULT_OBJECT_LIST[i] for i in [1,11,21,31,41,51,61,71,81,91]]
 INITIAL_STR = "Questions:\n"
 
 class TwentyQuestionsEnv():

@@ -72,3 +72,4 @@ peft
 openai
 wandb
 beautifulsoup4
+sentencepiece

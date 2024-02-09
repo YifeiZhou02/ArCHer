@@ -15,7 +15,7 @@ setuptools.setup(
     keywords='ArCHer',
     license='MIT',
     packages=setuptools.find_packages(),
-    # install_requires=open("requirements.txt", "r").read().split(),
+    install_requires=open("requirements.txt", "r").read().split(),
     include_package_data=True,
     python_requires='>=3.7',
     classifiers=[
