@@ -4,6 +4,7 @@ import time
 import logging
 logging.getLogger().setLevel(logging.CRITICAL)
 import torch
+from transformers import BartTokenizer, BartForConditionalGeneration
 from transformers import T5Tokenizer, T5ForConditionalGeneration
 import concurrent.futures
 # openai.util.logger.setLevel(logging.WARNING)
@@ -33,8 +34,30 @@ DEFAULT_OBJECT_LIST = sum([d for d in DEFAULT_OBJECT_DICT.values()], [])
 # DEFAULT_OBJECT_LIST = random.sample(DEFAULT_OBJECT_LIST, k=5)
 DEFAULT_OBJECT_LIST = [DEFAULT_OBJECT_LIST[i] for i in [1,11,21,31,41,51,61,71,81,91]]
 INITIAL_STR = "Questions:\n"
+llm_template = """<s>[INST]{user_message}[/INST]
+"""
+prompt = """Please play Twenty Questions with me. 
+An example is:
+Questions:
+Is the object alive? Yes.
+Is the object a mammal? No.
+Is the object a plant? Yes.
+Is the object edible? Yes.
+Is the object a fruit? Yes.
+Is the object a tropical fruit? Yes.
+Is the object a banana? Yes.
 
-class TwentyQuestionsEnv():
+Please continue this conversation by completing the next question.
+{obs}
+Please answer in the following format:
+{
+"Question": "Your Question",
+}
+The possible hidden words are:
+football, dog, banana, truck, pants, computer, piano, chair, pen, scissors.
+"""
+TEMPLATE =  llm_template.format(user_message = prompt)
+class LLMTwentyQuestionsEnv():
     def __init__(
         self, 
         # word_list,  
@@ -83,7 +106,7 @@ class TwentyQuestionsEnv():
         if done:
             reward = 0
         self.done = done or self.count == self.max_conversation_length
-        return  self.history, reward, self.done
+        return  TEMPLATE.replace("{obs}", self.history), reward, self.done
 
     def reset(self, idx : Optional[int]=None):
         self.count = 0 
@@ -96,17 +119,17 @@ class TwentyQuestionsEnv():
             self.curr_word = self.random.choice(self.word_list)
         self.history = INITIAL_STR 
         self.done = False
-        return INITIAL_STR
+        return TEMPLATE.replace("{obs}", INITIAL_STR)
         # return (Text(INITIAL_STR, is_action=False),)
 
     def copy(self):
-        return TwentyQuestionsEnv(
+        return LLMTwentyQuestionsEnv(
             oracle=self.oracle,
             word_list=self.word_list,
             max_conversation_length=self.max_conversation_length,
         )
 
-class BatchedTwentyQuestionsEnv():
+class LLMBatchedTwentyQuestionsEnv():
     def __init__(
         self, 
         env_load_path: str,
@@ -115,21 +138,19 @@ class BatchedTwentyQuestionsEnv():
         max_conversation_length: int=20,
         bsize: int=32,
     ):
-        self.env_list = [TwentyQuestionsEnv(max_conversation_length) for _ in range(bsize)]
+        self.env_list = [LLMTwentyQuestionsEnv(max_conversation_length) for _ in range(bsize)]
         self.bsize = bsize
-        self.tokenizer = T5Tokenizer.from_pretrained("google/flan-t5-small")
-        self.model = T5ForConditionalGeneration.from_pretrained("google/flan-t5-small", cache_dir=cache_dir).to(device)
-        self.model.load_state_dict(torch.load(env_load_path)['model_state_dict'])
+        from gradio_client import Client
+        self.client = Client("http://127.0.0.1:7860")
         # self.tokenizer = BartTokenizer.from_pretrained("facebook/bart-base")
         # self.model = BartForConditionalGeneration.from_pretrained("facebook/bart-base").to(device)
         # self.model.load_state_dict(torch.load('/home/yifei/llm_rl/20q_oracle/20q_bart_oracle.pt')['model_state_dict'])
 
     def generate_answers(self, questions):
         curr_words = [env.curr_word[0].lower() for env in self.env_list]
-        inputs = [f"The object is {curr_word}." + question for  curr_word, question in zip(curr_words, questions)]
-        encoder_ids = self.tokenizer(inputs ,padding=True, return_tensors='pt').to(self.model.device)
-        return self.tokenizer.batch_decode(self.model.generate(input_ids=encoder_ids['input_ids'], attention_mask=encoder_ids['attention_mask'],\
-                                                                max_new_tokens=16, do_sample = False), skip_special_tokens= True)
+        inputs = [f"The object is {curr_word}." + question + "Yes or No" for  curr_word, question in zip(curr_words, questions)]
+        answers = self.client.predict(",,,,,".join(inputs))
+        answers = answers.split(",,,,,")
 
     def reset(self, idx: Optional[int] = None):
         return [env.reset(idx) for env in self.env_list]

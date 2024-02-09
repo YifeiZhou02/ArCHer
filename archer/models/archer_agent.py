@@ -2,20 +2,22 @@ import torch
 import transformers
 from tqdm import tqdm
 from transformers import AutoModelForCausalLM, AutoTokenizer
-from transformers import LlamaForCausalLM, LlamaTokenizer
-from transformers import AutoTokenizer, RobertaModel
 from typing import Tuple
 import torch.nn as nn
 import numpy as np
-from transformers import RobertaTokenizer, RobertaModel
 from archer.models.critic import DoubleCritic
 
 class ArcherAgent(torch.nn.Module):
     def __init__(self, device, accelerator, policy_lm = "gpt2", critic_lm = "roberta-base", 
-                cache_dir = '~/.cache', dropout = 0.5,
-                do_sample = True, temperature = 1.0, max_new_tokens = 32):
+                cache_dir = '~/.cache', dropout = 0.5, TEMPLATE = None, 
+                do_sample = True, temperature = 1.0, max_new_tokens = 32, use_bfloat16 = False):
         super(ArcherAgent, self).__init__()
-        self.model = AutoModelForCausalLM.from_pretrained(policy_lm, cache_dir=cache_dir).to(device)
+        if use_bfloat16:
+            self.model = AutoModelForCausalLM.from_pretrained(policy_lm, cache_dir=cache_dir,
+                                                              torch_dtype = torch.bfloat16).to(device)
+        else:
+            self.model = AutoModelForCausalLM.from_pretrained(policy_lm, cache_dir=cache_dir).to(device)
+        self.template = TEMPLATE
         self.policy_lm = policy_lm
         self.critic = DoubleCritic(device, accelerator, critic_lm = critic_lm, cache_dir = cache_dir, in_dim = 768, out_dim = 1)  
         self.target_critic = DoubleCritic(device, accelerator, critic_lm = critic_lm, cache_dir = cache_dir, in_dim = 768, out_dim = 1) 
@@ -39,6 +41,8 @@ class ArcherAgent(torch.nn.Module):
         self.model, self.critic, self.target_critic = self.accelerator.prepare(self.model, self.critic, self.target_critic)
 
     def get_action(self, observation):
+        if self.template is not None:
+            observation = [self.template.format(obs = obs) for obs in observation]
         obs_ids = self.tokenizer(observation, return_tensors='pt', padding=True, max_length=512, truncation = True).to(self.device)
         # obs_embeds = self.accelerator.unwrap_model(self.model).get_input_embeddings()(obs_ids["input_ids"])
         # print(inputs_embeds.shape)
@@ -53,7 +57,8 @@ class ArcherAgent(torch.nn.Module):
         raw_action = self.tokenizer.batch_decode(outputs, skip_special_tokens  = True)
         for _ in range(3):
             raw_action = [a[1:] if a.startswith('\n') else a for a in raw_action]
-        return [raw_a.split('\n')[0] + '\n' for raw_a in raw_action]
+        return raw_action
+        # return [raw_a.split('\n')[0] + '\n' for raw_a in raw_action]
 
     def get_q(self, observation, action, detach_model=False):
         return self.critic.get_q(observation, action, detach_model = detach_model)
@@ -65,6 +70,8 @@ class ArcherAgent(torch.nn.Module):
         return self.target_critic.get_q(observation, action, detach_model = detach_model)
 
     def get_log_prob(self, observation, action):
+        if self.template is not None:
+            observation = [self.template.format(obs = obs) for obs in observation]
         obs_ids = self.tokenizer(observation, return_tensors='pt', padding=True, max_length=512, truncation = True).to(self.device)
         action_ids = self.tokenizer(action, return_tensors='pt', padding=True, max_length=512, truncation = True).to(self.device)
         # action_embeds = self.model.get_input_embeddings()(action_ids["input_ids"]).detach()
@@ -93,5 +100,3 @@ class ArcherAgent(torch.nn.Module):
                 target_param.data.copy_(
                     target_param.data * (1.0 - tau) + param.data * tau
                 )
-
-

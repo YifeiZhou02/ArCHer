@@ -39,7 +39,8 @@ def take_action(agent, tokenizer, observation, \
 
 
 def batch_interact_environment(agent, tokenizer, env, num_trajectories,\
-        post_f = lambda x: x, use_tqdm = True, env_idx = None, temperature = 2.0, do_sample=True):
+        post_f = lambda x: x, use_tqdm = True, decode_f = lambda x: x,
+        env_idx = None, temperature = 2.0, do_sample=True):
     """
     in a bacthed way, interact with the environments  to get a list of trajectories
     [[{"observation":, "next_observation":, "reward":, "done":},...],...]
@@ -59,7 +60,7 @@ def batch_interact_environment(agent, tokenizer, env, num_trajectories,\
             # print(f"Environment stpes {str(steps)}")
             action = take_action(agent, tokenizer, batch_obs, \
                         temperature = temperature, do_sample = do_sample)
-            batch_return = env.step(action)
+            batch_return = env.step(decode_f(action))
             for i,result in zip(range(bsize), batch_return):
                 if result is None:
                     continue

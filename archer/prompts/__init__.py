@@ -1,0 +1,1 @@
+from mistral import MISTRAL_TWENTY_QUESTIONS_TEMPLATE

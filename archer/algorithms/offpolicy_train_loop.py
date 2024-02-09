@@ -37,6 +37,7 @@ def offpolicy_train_loop(env,\
                 save_freq: int = 25,
                 eval_freq: int = 25,
                 agent_type: str = "archer",
+                decode_f: callable = lambda x: x,
                 **kwargs):
     if agent_type.lower() == "chai" or agent_type.lower() == "archer":
         trainer = ArcherTrainer(agent=agent,\
@@ -81,7 +82,8 @@ def offpolicy_train_loop(env,\
                                             env_idx = env_idx,
                                             use_tqdm=False,
                                             temperature=temperature,
-                                            do_sample=do_sample)
+                                            do_sample=do_sample,
+                                            decode_f = decode_f)
             info = {"rollout.mean": np.mean([d[0]["trajectory_reward"] for d in trajectories]),\
                     "rollout.max": np.max([d[0]["trajectory_reward"] for d in trajectories]),\
                     "rollout.min": np.min([d[0]["trajectory_reward"] for d in trajectories])}
@@ -95,7 +97,8 @@ def offpolicy_train_loop(env,\
                                                     env_idx = env_idx,
                                                     use_tqdm=False,
                                                     temperature=temperature,
-                                                    do_sample=do_sample)
+                                                    do_sample=do_sample,
+                                                    decode_f = decode_f)
                 agent.do_sample = old_sample
                 info.update({"eval_rollout.mean": np.mean([d[0]["trajectory_reward"] for d in eval_trajectories]),\
                         "eval_rollout.max": np.max([d[0]["trajectory_reward"] for d in eval_trajectories]),\
