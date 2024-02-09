@@ -7,9 +7,10 @@ import torch.nn as nn
 import numpy as np
 from archer.models.critic import DoubleCritic
 
+
 class ArcherAgent(torch.nn.Module):
     def __init__(self, device, accelerator, policy_lm = "gpt2", critic_lm = "roberta-base", 
-                cache_dir = '~/.cache', dropout = 0.5, TEMPLATE = None, 
+                cache_dir = '~/.cache', dropout = 0.5, TEMPLATE = None, use_lora=True,
                 do_sample = True, temperature = 1.0, max_new_tokens = 32, use_bfloat16 = False):
         super(ArcherAgent, self).__init__()
         if use_bfloat16:
@@ -17,6 +18,18 @@ class ArcherAgent(torch.nn.Module):
                                                               torch_dtype = torch.bfloat16).to(device)
         else:
             self.model = AutoModelForCausalLM.from_pretrained(policy_lm, cache_dir=cache_dir).to(device)
+        if use_lora:
+            from peft import LoraConfig, TaskType, get_peft_model
+            lora_config = LoraConfig(
+                r=16,
+                target_modules=['q_proj', 'k_proj', 'v_proj', 'o_proj'],
+                task_type=TaskType.CAUSAL_LM,
+                lora_alpha=32,
+                lora_dropout=0.05
+            )
+            self.model = get_peft_model(self.model, lora_config)
+            print("Using LoRA")
+            self.model.print_trainable_parameters()
         self.template = TEMPLATE
         self.policy_lm = policy_lm
         self.critic = DoubleCritic(device, accelerator, critic_lm = critic_lm, cache_dir = cache_dir, in_dim = 768, out_dim = 1)  
@@ -42,7 +55,7 @@ class ArcherAgent(torch.nn.Module):
 
     def get_action(self, observation):
         if self.template is not None:
-            observation = [self.template.format(obs = obs) for obs in observation]
+            observation = [self.template.replace("{obs}", obs) for obs in observation]
         obs_ids = self.tokenizer(observation, return_tensors='pt', padding=True, max_length=512, truncation = True).to(self.device)
         # obs_embeds = self.accelerator.unwrap_model(self.model).get_input_embeddings()(obs_ids["input_ids"])
         # print(inputs_embeds.shape)
@@ -71,7 +84,7 @@ class ArcherAgent(torch.nn.Module):
 
     def get_log_prob(self, observation, action):
         if self.template is not None:
-            observation = [self.template.format(obs = obs) for obs in observation]
+            observation = [self.template.replace("{obs}", obs) for obs in observation]
         obs_ids = self.tokenizer(observation, return_tensors='pt', padding=True, max_length=512, truncation = True).to(self.device)
         action_ids = self.tokenizer(action, return_tensors='pt', padding=True, max_length=512, truncation = True).to(self.device)
         # action_embeds = self.model.get_input_embeddings()(action_ids["input_ids"]).detach()

@@ -183,8 +183,8 @@ class ArcherTrainer():
         #update actor
         if not no_update_actor:
             print(">>>updating actor")
-            #batchsize for the actor set to 1 for memory concern
-            action_bsize = 1 if 'llama' in self.agent.policy_lm else replay_buffer.batch_size
+            #batchsize for the actor set to 1 for mistral due to memory concern
+            action_bsize = 2 if 'mistral' in self.agent.policy_lm else replay_buffer.batch_size
             #action_bsize = replay_buffer.batch_size
             for _ in range(self.actor_epochs):
                 data = [replay_buffer.sample(1) for _ in range(self.grad_accum_steps*replay_buffer.batch_size)]

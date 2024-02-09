@@ -5,6 +5,7 @@ from archer.environment import TwentyQuestionsEnv, BatchedTwentyQuestionsEnv,\
     BatchedAdventureEnv, BatchedGuessMyCityEnv, BatchedWebShopEnv
 from archer.models import ArcherAgent, CHAIAgent
 from archer.algorithms import offpolicy_train_loop
+from archer.prompts import MISTRAL_TWENTY_QUESTIONS_TEMPLATE, mistral_twenty_questions_decode_actions
 from archer.utils import colorful_print
 import torch.nn as nn
 import numpy as np 
@@ -50,7 +51,7 @@ def main(config: "DictConfig"):
         eval_env = env
     else:
         raise NotImplementedError("Environment not implemented.")
-    
+    decode_f = lambda x:x
     # load decision model
     if config.agent_type.lower() == "chai":
         print(">>> Using CHAI agent")
@@ -67,6 +68,15 @@ def main(config: "DictConfig"):
                             temperature=config.temperature, do_sample=config.do_sample, 
                             policy_lm=config.policy_lm, critic_lm=config.critic_lm,
                             cache_dir=config.cache_dir, max_new_tokens=config.max_new_tokens)
+    elif config.agent_type.lower() == "archer_llm":
+        #only twenty questions is supported for LLM ArCHer
+        print(">>> Using ArCHer agent with LLM")
+        agent = ArcherAgent(device=device, accelerator=accelerator, 
+                            temperature=config.temperature, do_sample=config.do_sample, 
+                            policy_lm=config.policy_lm, critic_lm=config.critic_lm,
+                            cache_dir=config.cache_dir, max_new_tokens=config.max_new_tokens,
+                            TEMPLATE=MISTRAL_TWENTY_QUESTIONS_TEMPLATE, use_lora=config.use_lora)
+        decode_f = mistral_twenty_questions_decode_actions
     elif config.agent_type.lower() == "online_filteredbc":
         print(">>> Using Online FilteredBC agent")
         # the agent is the same as ArCHer, only the trainer will be different
@@ -76,24 +86,22 @@ def main(config: "DictConfig"):
                             cache_dir=config.cache_dir, max_new_tokens=config.max_new_tokens)
     else:
         raise NotImplementedError("Agent not implemented.")
-    state_dict = torch.load(config.checkpoint_path, map_location=device)['model_state_dict']
     tokenizer = agent.tokenizer
-    # new_state_dict = {}
-    # for k,v in state_dict.items():
-    #     new_state_dict[k[6:]] = v
-    # print(torch.load(config.checkpoint_path)['model_state_dict'])
-    agent.model.load_state_dict(state_dict)
+    if config.checkpoint_path is not None:
+        state_dict = torch.load(config.checkpoint_path, map_location=device)['model_state_dict']
+        agent.model.load_state_dict(state_dict)
     # agent = accelerator.prepare(agent)
 
     if config.use_wandb and accelerator.is_main_process:
         wandb.login(key=config.wandb_key)
         wandb.init(project=config.project_name, name=config.run_name, config=dict(config))
 
-    offpolicy_train_loop(env = env,\
-                agent = agent,\
-                tokenizer = tokenizer,\
-                eval_env = eval_env,\
-                accelerator = accelerator,\
+    offpolicy_train_loop(env = env,
+                agent = agent,
+                tokenizer = tokenizer,
+                eval_env = eval_env,
+                accelerator = accelerator,
+                decode_f=decode_f,
                 **config)
 
 

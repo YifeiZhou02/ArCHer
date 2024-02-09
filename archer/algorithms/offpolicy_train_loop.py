@@ -9,6 +9,7 @@ import wandb
 import threading
 import os
 import torch
+import time
 def offpolicy_train_loop(env,\
                 eval_env,\
                 agent,\
@@ -39,7 +40,8 @@ def offpolicy_train_loop(env,\
                 agent_type: str = "archer",
                 decode_f: callable = lambda x: x,
                 **kwargs):
-    if agent_type.lower() == "chai" or agent_type.lower() == "archer":
+    if agent_type.lower() == "chai" or agent_type.lower() == "archer"\
+        or agent_type.lower() == "archer_llm":
         trainer = ArcherTrainer(agent=agent,\
                             accelerator=accelerator,\
                                 tokenizer=tokenizer,\
@@ -109,7 +111,10 @@ def offpolicy_train_loop(env,\
             info.update({"rollout.reward.mean": np.mean([d["reward"] for d in data]),\
                     "rollout.reward.max": np.max([d["reward"] for d in data]),\
                     "rollout.reward.min": np.min([d["reward"] for d in data])})
+            print(">>> Saving Replay Buffer")
             torch.save(replay_buffer, os.path.join(save_path, 'replay_buffer.pt'))
+            print(">>> Saved Replay Buffer")
+            time.sleep(15)
         else:
             info = {}
         accelerator.wait_for_everyone()
