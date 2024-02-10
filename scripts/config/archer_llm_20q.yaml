@@ -15,6 +15,7 @@ agent_type: 'archer_llm'
 policy_lm : 'mistralai/Mistral-7B-Instruct-v0.2'
 max_new_tokens: 64
 use_lora: True
+eos_str: null
 
 # wandb logging
 use_wandb: True

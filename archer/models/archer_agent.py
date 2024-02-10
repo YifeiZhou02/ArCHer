@@ -10,8 +10,8 @@ from archer.models.critic import DoubleCritic
 
 class ArcherAgent(torch.nn.Module):
     def __init__(self, device, accelerator, policy_lm = "gpt2", critic_lm = "roberta-base", 
-                cache_dir = '~/.cache', dropout = 0.5, TEMPLATE = None, use_lora=True,
-                do_sample = True, temperature = 1.0, max_new_tokens = 32, use_bfloat16 = False):
+                cache_dir = '~/.cache', dropout = 0.5, TEMPLATE = None, use_lora=False,
+                do_sample = True, temperature = 1.0, max_new_tokens = 32, use_bfloat16 = False, eos_str = '\n'):
         super(ArcherAgent, self).__init__()
         if use_bfloat16:
             self.model = AutoModelForCausalLM.from_pretrained(policy_lm, cache_dir=cache_dir,
@@ -46,6 +46,7 @@ class ArcherAgent(torch.nn.Module):
         self.temperature = temperature
         self.accelerator = accelerator
         self.max_new_tokens = max_new_tokens
+        self.eos_str = eos_str
     
     def prepare(self):
         # self.model = self.accelerator.prepare(self.model)
@@ -70,8 +71,13 @@ class ArcherAgent(torch.nn.Module):
         raw_action = self.tokenizer.batch_decode(outputs, skip_special_tokens  = True)
         for _ in range(3):
             raw_action = [a[1:] if a.startswith('\n') else a for a in raw_action]
-        return raw_action
-        # return [raw_a.split('\n')[0] + '\n' for raw_a in raw_action]
+        # return raw_action
+        if self.eos_str is not None:
+            # print(f"using eos str {eos_str}")
+            # print([raw_a.split(self.eos_str)[0] + self.eos_str for raw_a in raw_action])
+            return [raw_a.split(self.eos_str)[0] for raw_a in raw_action]
+        else:
+            return raw_action
 
     def get_q(self, observation, action, detach_model=False):
         return self.critic.get_q(observation, action, detach_model = detach_model)

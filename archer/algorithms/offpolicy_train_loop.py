@@ -83,8 +83,6 @@ def offpolicy_train_loop(env,\
                                             num_trajectories= rollout_size,\
                                             env_idx = env_idx,
                                             use_tqdm=False,
-                                            temperature=temperature,
-                                            do_sample=do_sample,
                                             decode_f = decode_f)
             info = {"rollout.mean": np.mean([d[0]["trajectory_reward"] for d in trajectories]),\
                     "rollout.max": np.max([d[0]["trajectory_reward"] for d in trajectories]),\
@@ -98,8 +96,6 @@ def offpolicy_train_loop(env,\
                                                     num_trajectories=  max(eval_size, eval_env.bsize),\
                                                     env_idx = env_idx,
                                                     use_tqdm=False,
-                                                    temperature=temperature,
-                                                    do_sample=do_sample,
                                                     decode_f = decode_f)
                 agent.do_sample = old_sample
                 info.update({"eval_rollout.mean": np.mean([d[0]["trajectory_reward"] for d in eval_trajectories]),\

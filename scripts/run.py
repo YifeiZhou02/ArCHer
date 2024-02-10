@@ -18,7 +18,7 @@ from accelerate import Accelerator
 from accelerate import DistributedDataParallelKwargs
 transformers.logging.set_verbosity_error()
 
-CONFIG_NAME = "dqn_20q"
+CONFIG_NAME = "archer_20q"
 @hydra.main(version_base=None, config_path="./config/", config_name=CONFIG_NAME)
 def main(config: "DictConfig"):
     colorful_print(">>> Configuration file: "+CONFIG_NAME+"<<<", fg='blue')
@@ -59,7 +59,7 @@ def main(config: "DictConfig"):
                         temperature=config.temperature, 
                         do_sample=config.do_sample, policy_lm=config.policy_lm, 
                         critic_lm=config.critic_lm, cache_dir=config.cache_dir,
-                        max_new_tokens=config.max_new_tokens)
+                        max_new_tokens=config.max_new_tokens, eos_str = config.eos_str)
         #if use chai, do not update the actor
         config.warmup_iter = config.iterations
     elif config.agent_type.lower() == "archer":
@@ -67,7 +67,8 @@ def main(config: "DictConfig"):
         agent = ArcherAgent(device=device, accelerator=accelerator, 
                             temperature=config.temperature, do_sample=config.do_sample, 
                             policy_lm=config.policy_lm, critic_lm=config.critic_lm,
-                            cache_dir=config.cache_dir, max_new_tokens=config.max_new_tokens)
+                            cache_dir=config.cache_dir, max_new_tokens=config.max_new_tokens,
+                            eos_str='\n')
     elif config.agent_type.lower() == "archer_llm":
         #only twenty questions is supported for LLM ArCHer
         print(">>> Using ArCHer agent with LLM")
@@ -75,7 +76,8 @@ def main(config: "DictConfig"):
                             temperature=config.temperature, do_sample=config.do_sample, 
                             policy_lm=config.policy_lm, critic_lm=config.critic_lm,
                             cache_dir=config.cache_dir, max_new_tokens=config.max_new_tokens,
-                            TEMPLATE=MISTRAL_TWENTY_QUESTIONS_TEMPLATE, use_lora=config.use_lora)
+                            TEMPLATE=MISTRAL_TWENTY_QUESTIONS_TEMPLATE, use_lora=config.use_lora,
+                            eos_str=config.eos_str)
         decode_f = mistral_twenty_questions_decode_actions
     elif config.agent_type.lower() == "online_filteredbc":
         print(">>> Using Online FilteredBC agent")

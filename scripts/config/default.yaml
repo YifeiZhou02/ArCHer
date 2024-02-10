@@ -1,5 +1,5 @@
 #cache directory of transformer
-cache_dir: '/home/yifei/.cache'
+cache_dir: '/global/scratch/users/yifeizhou/.cache'
 
 #token
 huggingface_token: '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'
@@ -10,24 +10,25 @@ policy_lm: "gpt2"
 critic_lm: "roberta-base"
 agent_type: "archer"
 use_baseline: False
+use_lora: False
 max_new_tokens: 32
 save_freq: 25
 eval_freq: 25
 
 #training hyperparameters
-capacity: 10000 #replay buffer size
+capacity: 100000 #replay buffer size
 rollout_size: 128 #number of rollout trajectories for each update
 eval_size: 32 #number of trajectories for evaluation
-batch_size: 4
+batch_size: 8
 iterations: 2000 #total number of iterations
 epochs: 50 #number of epochs for the critic each iteration
 actor_epochs: 3 #number of epochs for the actor each iteration
 warmup_iter: 10 #number of iterations without updating the policy
-grad_accum_steps: 64
+grad_accum_steps: 32
 do_sample: True
 temperature: 1.0
-critic_lr: 1e-5
-lm_lr: 1e-7
+critic_lr: 2e-5
+lm_lr: 4e-6
 env_idx: null #set to null if don't want to reset to a specific environment
 gamma: 0.95 #discount factor
 tau: 0.1 #soft update parameter

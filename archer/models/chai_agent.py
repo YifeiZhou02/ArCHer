@@ -10,7 +10,7 @@ from archer.models.critic import DoubleCritic
 class CHAIAgent(torch.nn.Module):
     def __init__(self, device, accelerator, policy_lm = "gpt2", critic_lm="roberta-base",
                 cache_dir = '~/.cache', max_new_tokens=32,
-                do_sample = True, temperature = 1.0):
+                do_sample = True, temperature = 1.0, eos_str = '\n'):
         super(CHAIAgent, self).__init__()
         self.model = AutoModelForCausalLM.from_pretrained(policy_lm, cache_dir = cache_dir).to(device)
         self.critic = DoubleCritic(device, accelerator=accelerator, 
@@ -30,6 +30,7 @@ class CHAIAgent(torch.nn.Module):
         self.temperature = temperature
         self.accelerator = accelerator
         self.max_new_tokens = max_new_tokens
+        self.eos_str = eos_str
 
     def prepare(self):
         # self.model = self.accelerator.prepare(self.model)
@@ -55,7 +56,7 @@ class CHAIAgent(torch.nn.Module):
         #remove begining \n
         for _ in range(3):
             raw_action = [a[1:] if a.startswith('\n') else a for a in raw_action]
-        return [raw_a.split('\n')[0] + '\n' for raw_a in raw_action]
+        return [raw_a.split(self.eos_str)[0] + self.eos_str for raw_a in raw_action]
 
     def get_action(self, observation):
         batch_actions = []
