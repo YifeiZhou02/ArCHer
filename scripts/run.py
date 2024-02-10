@@ -14,8 +14,8 @@ from omegaconf import DictConfig, OmegaConf
 import os
 import hydra
 from accelerate import Accelerator
-
-from accelerate import DistributedDataParallelKwargs
+from datetime import timedelta
+from accelerate import DistributedDataParallelKwargs, InitProcessGroupKwargs
 transformers.logging.set_verbosity_error()
 
 CONFIG_NAME = "archer_20q"
@@ -26,7 +26,7 @@ def main(config: "DictConfig"):
     from huggingface_hub import login
     login(token=config.huggingface_token)
 
-    accelerator = Accelerator()
+    accelerator = Accelerator(InitProcessGroupKwargs(timeout=timedelta(18000)))
     device = accelerator.device
 
     # load environment
