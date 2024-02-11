@@ -99,7 +99,7 @@ First, you will need to set up the config for accelerate by changing the acceler
 cd scripts
 accelerate launch --config_file accelerate_config/default_config.yaml run.py --config-name archer_20q
 ```
-## Specification for Hyperparameters
+## Specification for the Configuration
 ```cache_dir```: The cache dir for huggingface transformers (for saving pre-trained model weights etc).
 
 ```huggingface_token```: Huggingface token for logging in (access some private models such as llama2).
