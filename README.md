@@ -99,3 +99,71 @@ First, you will need to set up the config for accelerate by changing the acceler
 cd scripts
 accelerate launch --config_file accelerate_config/default_config.yaml run.py --config-name archer_20q
 ```
+## Specification for Hyperparameters
+```cache_dir```: The cache dir for huggingface transformers (for saving pre-trained model weights etc).
+
+```huggingface_token```: Huggingface token for logging in (access some private models such as llama2).
+
+```wandb_key```: This repo uses Weight and Biases for logging, put your wandb key here.
+
+```policy_lm```: The model name (from huggingface) for the policy language model. The main results in the paper use ```gpt2```.
+
+```critic_lm```: The model name (from huggingface) for the critic language model. The main results in the paper use ```roberta-base```.
+
+```agent_type```: The algorithm to use, currently supports ```archer```, ```chai```, and ```online_filteredbc```.
+
+```use_baseline```: Whether or not to train a separate model as token-level baseline. Will be added soon.
+
+```use_lora```: Whether or not to use lora for policy language model. 
+
+```max_new_tokens```: Maximum number of tokens to generate at each turn from the policy language model.
+
+```save_freq```: Number of iterations to save all models and optimizers weights.
+
+```eval_freq```: Number of times to do deterministic evaluations.
+
+```capacity```: Number of utterance-level interaction tuples (s,a,r,s') that can be saved in the replay buffer.
+
+```rollout_size```: Number of trajectories to collect for each iteration.
+
+```eval_size```: Number of trajectories to evaluate on for each evaluation.
+
+```batch_size```: Training batch size (same both for the actor and critic).
+
+```iterations```: Number of total iterations.
+
+```epochs```: The number of critic gradient steps for each iteration.
+
+```actor_epochs```: The number of actor gradient steps for each iteration.
+
+```warmup_iter```: Number of warming up iterations only updating the critic (i.e. the actor is not updated).
+
+```grad_accum_steps```: Number of gradient accumulation steps. Note that gradients are not normalized with respect to gradient accumulation steps, so the effective learning rate is ```learning_rate*grad_accum_steps```.
+
+```do_sample```: Whether or not sampling is used for rolling out trajectories to collect data.
+
+```temperature```: The temperature when sampling from the policy language model.
+
+```critic_lr```: The (unnormalized) learning rate for the critic, please also see ```grad_accum_steps```.
+
+```lm_lr```: The (unnormalized) learning rate for the actor, please also see ```grad_accum_steps```.
+
+```gamma```: The discount factor.
+
+```tau```: Polyak constant for soft updating the target network.
+
+```max_grad_norm```: Maximum gradient norm clipping threshold after gradient accumulation.
+
+```use_wandb```: Whether or not to use Weights and Biases.
+
+```checkpoint_path```: The path to the SFT checkpoint to start with, as provided above.
+
+```save_path```: (Required) The path to save replay buffer and training checkpoints.
+
+```env_name```: Which environment to use, currently supporting: ```twenty_questions```, ```guess_my_city```, ```adventure``` (can be used for Detective Game), and ```webshop```.
+
+```env_load_path```: The path where the data for environment comes from (different for each environment, see example configs  for each environment).
+
+```project_name```: Weights and Biases project name.
+
+```run_name```: Weights and Biases run name.
