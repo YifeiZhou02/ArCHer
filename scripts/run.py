@@ -23,8 +23,11 @@ CONFIG_NAME = "archer_20q"
 def main(config: "DictConfig"):
     colorful_print(">>> Configuration file: "+CONFIG_NAME+"<<<", fg='blue')
     colorful_print(OmegaConf.to_yaml(config), fg='red')
-    from huggingface_hub import login
-    login(token=config.huggingface_token)
+    try:
+        from huggingface_hub import login
+        login(token=config.huggingface_token)
+    except:
+        print(">>> Huggingface token not found.")
 
     accelerator = Accelerator(InitProcessGroupKwargs(timeout=timedelta(18000)))
     device = accelerator.device
