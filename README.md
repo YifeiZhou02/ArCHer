@@ -102,7 +102,7 @@ accelerate launch --config_file accelerate_config/default_config.yaml run.py --c
 ## Specification for the Configuration
 ```cache_dir```: The cache dir for huggingface transformers (for saving pre-trained model weights etc).
 
-```huggingface_token```: Huggingface token for logging in (access some private models such as llama2).
+```huggingface_token```: (Optional) Huggingface token for logging in (access some private models such as llama2).
 
 ```wandb_key```: This repo uses Weight and Biases for logging, put your wandb key here.
 
