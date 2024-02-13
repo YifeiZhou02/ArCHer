@@ -68,7 +68,7 @@ def batch_interact_environment(agent, tokenizer, env, num_trajectories,\
                                 "next_observation": next_obs, \
                                 "reward": r, \
                                 "done": done, \
-                                "action": action[i]+ '\n'})
+                                "action": action[i]})
                 batch_obs[i] = next_obs
                 batch_done[i] = done
             # obs = next_obs
