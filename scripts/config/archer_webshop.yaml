@@ -13,6 +13,18 @@ env_name: webshop
 webshop_lower: 2000 
 webshop_upper: 2100
 
+# training hyperparameters
+rollout_size: 512 #number of rollout trajectories for each update
+batch_size: 8
+iterations: 2000 #total number of iterations
+epochs: 50 #number of epochs for the critic each iteration
+actor_epochs: 3 #number of epochs for the actor each iteration
+warmup_iter: 20 #number of iterations without updating the policy
+grad_accum_steps: 32
+critic_lr: 2e-5
+lm_lr: 1e-5
+
+
 # wandb logging
 use_wandb: False
 project_name: 'llm_rl_20q'
