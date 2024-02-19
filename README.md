@@ -166,4 +166,9 @@ accelerate launch --config_file accelerate_config/default_config.yaml run.py --c
 
 ```project_name```: Weights and Biases project name.
 
-```run_name```: Weights and Biases run name.
+## Support for LLM
+ Our default configuration runs with [GPT2](https://huggingface.co/openai-community/gpt2), but it also supports running state-of-the-art LLMs such as [Mistral-7B](https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.2). If you have a machine with larger RAM, simply try:
+```bash
+cd scripts
+python run.py --config-name archer_llm_20q
+```
