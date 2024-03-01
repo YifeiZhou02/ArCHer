@@ -6,13 +6,13 @@ Research Code for "ArCHer: Training Language Model Agents via Hierarchical Multi
 ![archer_diagram 001](https://github.com/YifeiZhou02/ArCHer/assets/83000332/b874432a-d330-49a5-906c-bba37e17f831)
 
 
-This repo supports the following methods:
+This repo supports the following online methods and offline ArCHer implementation can be found [in this repo](https://github.com/andreazanette/OfflineArcher):
 
 - [ArCHer][1]
 - [Online CHAI][2]
 - Online Filtered BC
 
-[1]: https://github.com/YifeiZhou02/ArCHer
+[1]: https://arxiv.org/abs/2402.19446
 [2]: https://arxiv.org/abs/2204.08426
 
 
