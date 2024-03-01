@@ -172,3 +172,15 @@ accelerate launch --config_file accelerate_config/default_config.yaml run.py --c
 cd scripts
 python run.py --config-name archer_llm_20q
 ```
+
+## Citing ArCHer
+```
+@misc{zhou2024archer,
+      title={ArCHer: Training Language Model Agents via Hierarchical Multi-Turn RL}, 
+      author={Yifei Zhou and Andrea Zanette and Jiayi Pan and Sergey Levine and Aviral Kumar},
+      year={2024},
+      eprint={2402.19446},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG}
+}
+```
