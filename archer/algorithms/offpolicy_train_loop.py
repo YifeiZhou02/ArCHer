@@ -62,11 +62,13 @@ def offpolicy_train_loop(env,\
                                 grad_accum_steps=grad_accum_steps,
                                 max_grad_norm=max_grad_norm)
     replay_buffer= ReplayBuffer(batch_size= batch_size, capacity=capacity)
+    all_trajectories = []
     if accelerator.is_main_process:
         if os.path.exists(os.path.join(save_path, 'trainer.pt')):
             # print("Not using existing checkpoint")
             print("Loading from checkpoint")
             trainer.load(os.path.join(save_path, 'trainer.pt'))
+            all_trajectories = torch.load(os.path.join(save_path, 'trajectories.pt'))
             replay_buffer = torch.load(os.path.join(save_path, 'replay_buffer.pt'))
         else:
             print("Creating new checkpoint directory")
@@ -101,6 +103,7 @@ def offpolicy_train_loop(env,\
                 info.update({"eval_rollout.mean": np.mean([d[0]["trajectory_reward"] for d in eval_trajectories]),\
                         "eval_rollout.max": np.max([d[0]["trajectory_reward"] for d in eval_trajectories]),\
                         "eval_rollout.min": np.min([d[0]["trajectory_reward"] for d in eval_trajectories]),})
+            all_trajectories += trajectories
             data = sum(trajectories, [])
             for t in data:
                 replay_buffer.insert(**t)
@@ -109,15 +112,28 @@ def offpolicy_train_loop(env,\
                     "rollout.reward.min": np.min([d["reward"] for d in data])})
             print(">>> Saving Replay Buffer")
             torch.save(replay_buffer, os.path.join(save_path, 'replay_buffer.pt'))
+            torch.save(all_trajectories, os.path.join(save_path, 'trajectories.pt'))
             print(">>> Saved Replay Buffer")
             time.sleep(15)
         else:
             info = {}
         accelerator.wait_for_everyone()
+        all_trajectories = torch.load(os.path.join(save_path, 'trajectories.pt'))
         replay_buffer = torch.load(os.path.join(save_path, 'replay_buffer.pt'))
-        # data = list(filter(lambda x: x["reward"] >0, data))
         print("Training")
-        info.update(trainer.update(replay_buffer, no_update_actor = (i < warmup_iter)))
+        if 'filtered' in agent_type.lower():
+            filtered_buffer= ReplayBuffer(batch_size= batch_size, capacity=capacity)
+            episode_rewards = [d[0]["trajectory_reward"] for d in all_trajectories]
+            cutoff = np.quantile(episode_rewards, 1 - 0.1)
+            print("Episode Reward Cutoff: ", cutoff)
+            filtered_trajectories = list(filter(lambda x: x[0]["trajectory_reward"] >= cutoff, all_trajectories))
+            data = sum(filtered_trajectories, [])
+            for d in data:
+                filtered_buffer.insert(**d)
+            info.update(trainer.update(filtered_buffer, no_update_actor = (i < warmup_iter)))
+        else:
+            # data = list(filter(lambda x: x["reward"] >0, data))
+            info.update(trainer.update(replay_buffer, no_update_actor = (i < warmup_iter)))
         if use_wandb and accelerator.is_main_process:
             wandb.log(info)
         if (i+1) % save_freq == 0 and save_path is not None and accelerator.is_main_process:
