@@ -1,0 +1,29 @@
+defaults:
+  - default
+  - _self_
+
+# checkpoint
+checkpoint_path: '/home/biggod/archer/archer_public_data/gpt2_bc_mddial.pt'   # nếu bạn có pretrained checkpoint, nếu không để null hoặc xóa dòng này
+save_path: '/home/biggod/archer/archer_public_data/archer_mddial'
+
+# env
+env_name: mddial
+env_load_path: '/home/biggod/archer/archer_public_data/mddial_t5_oracle.pt'
+
+# training hyperparameters
+rollout_size: 64              # có thể giảm nếu MDDial nặng hơn 20Q
+batch_size: 4                 # tương tự, giảm nếu bị OOM
+iterations: 30
+epochs: 30
+actor_epochs: 3
+warmup_iter: 20
+grad_accum_steps: 16
+critic_lr: 2e-5
+lm_lr: 1e-6
+max_conversation_length: 20
+
+
+# wandb logging
+use_wandb: True
+project_name: 'llm_rl_mddial'
+run_name: 'archer-mddial'

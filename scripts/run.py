@@ -1,8 +1,18 @@
+import sys
+import os
+
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+
+# Thêm đường dẫn này vào sys.path nếu nó chưa có
+if project_root not in sys.path:
+    sys.path.append(project_root)
+
+
 import torch
 import transformers
 from tqdm import tqdm
 from archer.environment import TwentyQuestionsEnv, BatchedTwentyQuestionsEnv,\
-    BatchedAdventureEnv, BatchedGuessMyCityEnv, BatchedWebShopEnv
+    BatchedAdventureEnv, BatchedGuessMyCityEnv, BatchedWebShopEnv, TwentyQuestionsEnv
 from archer.models import ArcherAgent, CHAIAgent
 from archer.algorithms import offpolicy_train_loop
 from archer.prompts import MISTRAL_TWENTY_QUESTIONS_TEMPLATE, mistral_twenty_questions_decode_actions
@@ -11,12 +21,13 @@ import torch.nn as nn
 import numpy as np 
 import wandb
 from omegaconf import DictConfig, OmegaConf
-import os
 import hydra
 from accelerate import Accelerator
 from datetime import timedelta
 from accelerate import DistributedDataParallelKwargs, InitProcessGroupKwargs
 transformers.logging.set_verbosity_error()
+
+
 
 CONFIG_NAME = "archer_20q"
 @hydra.main(version_base=None, config_path="./config/", config_name=CONFIG_NAME)
@@ -51,6 +62,14 @@ def main(config: "DictConfig"):
         env = BatchedWebShopEnv(lower=config.webshop_lower,
                                 upper=config.webshop_upper,
                                 env_load_path=config.env_load_path)
+        eval_env = env
+    elif config.env_name == "mddial":
+        env = BatchedMDDialEnv(
+            env_load_path=config.env_load_path,
+            cache_dir=config.cache_dir,
+            device=device,
+            max_conversation_length=config.max_conversation_length
+        )
         eval_env = env
     else:
         raise NotImplementedError("Environment not implemented.")

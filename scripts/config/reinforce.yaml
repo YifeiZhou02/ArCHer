@@ -1,0 +1,19 @@
+defaults:
+  - default
+  - _self_
+
+# Data and model paths
+data_path: '/home/biggod/archer/archer_public_data/twenty_questions.json'
+checkpoint_path: '/home/biggod/archer/archer_public_data/gpt2_bc_20q.pt'
+cache_dir: '~/.cache'
+
+# Training hyperparameters
+batch_size: 8
+iterations: 1000
+grad_accum_steps: 4
+learning_rate: 1e-4
+
+# Wandb logging
+use_wandb: True
+project_name: 'llm_rl_20q'
+run_name: 'bc-training' 

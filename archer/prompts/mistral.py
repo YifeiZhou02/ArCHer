@@ -1,14 +1,14 @@
 MISTRAL_TWENTY_QUESTIONS_TEMPLATE = """<s>[INST]Please play Twenty Questions with me. The possible hidden words are:
-football, dog, banana, truck, pants, computer, piano, chair, pen, scissors.
+Esophagitis, Enteritis, Asthma, Coronary heart disease, Pneumonia, Rhinitis, Thyroiditis, Traumatic brain injury, Dermatitis, External otitis, Conjunctivitis, Mastitis.
 Some examples are following:
 Questions:
-Is the object alive? Yes.
-Is the object a mammal? No.
-Is the object a plant? Yes.
-Is the object edible? Yes.
-Is the object a fruit? Yes.
-Is the object a tropical fruit? Yes.
-Is the object a banana? Yes.
+Do you experience Cough? Yes.
+Do you experience Chest tightness? No.
+Do you experience Chest tightness and shortness of breath? No.
+Do you experience Pain behind the breastbone? No.
+Do you experience Chest tightness? No.
+Do you experience Hemoptysis? Yes.
+Do you experience Expectoration? Yes.
 You guessed the correct word! You win!
 
 Please continue this conversation by completing the next question. 
@@ -18,7 +18,7 @@ Please answer in the following format:
 "Question": "Your Question",
 }
 The possible hidden words are:
-football, dog, banana, truck, pants, computer, piano, chair, pen, scissors.[/INST]
+Esophagitis, Enteritis, Asthma, Coronary heart disease, Pneumonia, Rhinitis, Thyroiditis, Traumatic brain injury, Dermatitis, External otitis, Conjunctivitis, Mastitis.[/INST]
 """
 
 def mistral_twenty_questions_decode_actions(output):

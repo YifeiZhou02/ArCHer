@@ -1,5 +1,5 @@
 #cache directory of transformer
-cache_dir: '/home/yifei/.cache'
+cache_dir: ' /home/lilgod/.cache/huggingface'
 
 #token
 huggingface_token: ''
